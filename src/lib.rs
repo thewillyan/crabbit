@@ -16,6 +16,10 @@ pub trait AsObj {
     fn as_obj(&self) -> Obj;
 }
 
+pub trait AsSprite {
+    fn as_sprite(&self) -> Sprite;
+}
+
 pub struct Obj {
     pub pos: Pos,
     pub sprite: Sprite
@@ -40,10 +44,11 @@ impl Obj {
     }
 
     pub fn erase<O: Write>(&self, out: &mut O) {
-        let (x, y) = self.pos;
-        let overwrite = " ".repeat(self.width());
-        for y in y..(y + self.height() as u16) {
+        let (x, mut y) = self.pos;
+        for line in &self.sprite {
+            let overwrite = " ".repeat(line.len());
             write!(out, "{}{}", cursor::Goto(x,y), overwrite).unwrap();
+            y += 1;
         }
     }
 }

@@ -1,45 +1,70 @@
-use std::collections::HashSet;
-use crate::{Size, Pos, Sprite, Obj, AsObj};
+use std::{
+    collections::HashSet,
+    io::Write
+};
+use crate::{Size, Sprite, Obj, AsSprite};
 
 pub struct Stage {
     pub size: Size,
     pub layers: Vec<Layer>,
-    pub hitmap: HashSet<u16>
+    pub hitmap: HashSet<u16>,
+    objs: Vec<Obj>
 }
 
 impl Stage {
-    pub fn new(width: usize, height: usize) -> Stage {
+    pub fn new(width: usize) -> Stage {
         Stage {
-            size: (width, height),
-            layers: Vec::with_capacity(height),
+            size: (width, 0),
+            layers: Vec::new(),
+            objs: Vec::new(),
             hitmap: HashSet::new(),
         }
     }
 
-    pub fn add_layer(&mut self, mut layer: Layer) {
-        let layer_y = match self.layers.last() {
-            Some(l) => l.pos.1 + l.size.1 as u16,
-            None => 1
-        };
+    fn push(&mut self, layer: Layer) {
+        let (_, height) = &mut self.size;
+        let (_, layer_height) = layer.size;
+        let layer_y = *height as u16 + 1;
 
         if layer.bound {
-            let (_, height) = layer.size;
-            for y in layer_y..(layer_y + height as u16) {
+            for y in layer_y..(layer_y + layer_height as u16) {
                 self.hitmap.insert(y);
             }
         }
 
-        layer.pos = (1, layer_y);
+        let obj = Obj {
+            pos: (1, *height as u16 + 1),
+            sprite: layer.as_sprite()
+        };
+        self.objs.push(obj);
+
+        *height += layer_height;
         self.layers.push(layer);
     }
 
+    pub fn add_layer(&mut self, sprite: Sprite, bound: bool, shift: usize) {
+        let (width, _) = self.size;
+        let layer = Layer::new(width, sprite, bound, shift);
+        self.push(layer);
+    }
+
     pub fn shift(&mut self) {
-        self.layers.iter_mut().for_each(|layer| layer.shift());
+        self.layers.iter_mut().enumerate().for_each(|(i, layer)| {
+            if !layer.is_static() {
+                layer.shift();
+                self.objs[i].sprite = layer.as_sprite();
+            }
+        });
+    }
+
+    pub fn render<O: Write>(&self, out: &mut O) {
+        for obj in &self.objs {
+            obj.render(out);
+        }
     }
 }
 
 pub struct Layer {
-    pub pos: Pos,
     pub size: Size,
     pub sprite: Sprite,
     pub bound: bool,
@@ -50,9 +75,8 @@ pub struct Layer {
 impl Layer {
     pub fn new(width: usize, sprite: Sprite, bound: bool, shift: usize) -> Layer {
         let offset = 0;
-        let pos = (1,1);
         let size = (width, sprite.len());
-        Layer { pos, size, sprite, bound, offset, shift }
+        Layer { size, sprite, bound, offset, shift }
     }
 
     pub fn shift(&mut self) {
@@ -65,8 +89,8 @@ impl Layer {
     }
 }
 
-impl AsObj for Layer {
-    fn as_obj(&self) -> Obj {
+impl AsSprite for Layer {
+    fn as_sprite(&self) -> Sprite {
         let (width, height) = self.size;
         let s_width = self.sprite[0].len();
         let mut sprite = vec![Vec::with_capacity(width); height];
@@ -78,6 +102,7 @@ impl AsObj for Layer {
                 .enumerate()
                 .for_each(|(i, x)| x.push(self.sprite[i][j]))
         }
-        Obj { pos: self.pos, sprite }
+
+        sprite
     }
 }
