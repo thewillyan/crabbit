@@ -21,6 +21,13 @@ impl Stage {
         }
     }
 
+    pub fn floor(&self) -> Option<u16> {
+        match self.objs.last() {
+            Some(obj) => Some(obj.pos.1),
+            None => None
+        }
+    }
+
     fn push(&mut self, layer: Layer) {
         let (_, height) = &mut self.size;
         let (_, layer_height) = layer.size;
