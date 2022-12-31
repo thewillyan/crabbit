@@ -2,7 +2,10 @@ use std::{
     collections::HashSet,
     io::Write
 };
-use crate::{Pos, Size, Sprite, AsSprite, object::RetObj};
+
+use termion::color;
+
+use crate::{Pos, Size, Sprite, object::RetObj};
 
 pub struct Stage {
     pub size: Size,
@@ -35,15 +38,23 @@ impl Stage {
             width: sprite[0].len() as u16,
             height: sprite.len() as u16
         };
-        let obj = RetObj { size, pos, sprite };
+
+        let obj = RetObj {
+            size,
+            pos,
+            sprite,
+            bg: color::Reset.bg_str(),
+            fg: layer.fg,
+        };
+
         self.objs.push(obj);
 
         self.size.height += layer.size.height;
         self.layers.push(layer);
     }
 
-    pub fn add_layer(&mut self, sprite: Sprite, bound: bool, shift: usize) {
-        let layer = Layer::new(self.size.width, sprite, bound, shift);
+    pub fn add_layer(&mut self, sprite: Sprite, fg: &'static str, bound: bool, shift: usize) {
+        let layer = Layer::new(self.size.width, sprite, fg, bound, shift);
         self.push(layer);
     }
 
@@ -83,6 +94,7 @@ impl Stage {
 
 pub struct Layer {
     pub size: Size,
+    pub fg: &'static str,
     pub sprite: Sprite,
     pub bound: bool,
     pub shift: usize,
@@ -90,14 +102,16 @@ pub struct Layer {
 }
 
 impl Layer {
-    pub fn new(width: u16, mut sprite: Sprite, bound: bool, shift: usize) -> Layer {
+    pub fn new(width: u16, mut sprite: Sprite, fg: &'static str, bound: bool, shift: usize)
+        -> Layer
+    {
         let offset = 0;
         let size = Size {
             width,
             height: sprite.len() as u16
         };
         RetObj::to_ret(&mut sprite);
-        Layer { size, sprite, bound, offset, shift }
+        Layer { size, fg, sprite, bound, offset, shift }
     }
 
     pub fn shift(&mut self) {
@@ -107,9 +121,7 @@ impl Layer {
     pub fn is_static(&self) -> bool {
         self.shift == 0
     }
-}
 
-impl AsSprite for Layer {
     fn as_sprite(&self) -> Sprite {
         let width = self.size.width as usize;
         let height = self.size.height as usize;

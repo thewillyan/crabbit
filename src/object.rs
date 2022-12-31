@@ -1,10 +1,12 @@
 use std::io::Write;
-use super::{ Pos, Size, Sprite };
-use termion::cursor;
+use super::{Pos, Size, Sprite};
+use termion::{cursor, color::{Fg, Bg, Reset}};
 
 pub struct Obj {
     pub pos: Pos,
-    pub sprite: Sprite
+    pub sprite: Sprite,
+    pub bg: &'static str,
+    pub fg: &'static str,
 }
 
 impl Obj {
@@ -12,8 +14,13 @@ impl Obj {
         let mut row = self.pos.row;
         for line in &self.sprite {
             let line: String = line.iter().collect();
-            write!(out, "{}{}", cursor::Goto(self.pos.col, row), line)
-                .unwrap();
+            write!(out, "{}{}{}{}{}{}",
+                   cursor::Goto(self.pos.col, row),
+                   self.bg,
+                   self.fg,
+                   line,
+                   Fg(Reset),
+                   Bg(Reset)).unwrap();
             row += 1;
         }
     }
@@ -34,10 +41,12 @@ pub struct RetObj {
     pub size: Size,
     pub pos: Pos,
     pub sprite: Sprite,
+    pub bg: &'static str,
+    pub fg: &'static str
 }
 
 impl RetObj {
-    pub fn new(col: u16, row: u16, mut sprite: Sprite) -> RetObj {
+    pub fn new(col: u16, row: u16, mut sprite: Sprite, bg: &'static str, fg: &'static str) -> RetObj {
         let pos = Pos { col, row };
         Self::to_ret(&mut sprite);
         let size = Size {
@@ -45,7 +54,7 @@ impl RetObj {
             height: sprite.len() as u16,
         };
 
-        RetObj { size, pos, sprite }
+        RetObj { size, pos, sprite, bg, fg }
     }
 
     pub fn to_ret(sprite: &mut Sprite) {
@@ -66,8 +75,13 @@ impl RetObj {
         let mut row = self.pos.row;
         for line in &self.sprite {
             let line: String = line.iter().collect();
-            write!(out, "{}{}", cursor::Goto(self.pos.col, row), line)
-                .unwrap();
+            write!(out, "{}{}{}{}{}{}",
+                   cursor::Goto(self.pos.col, row),
+                   self.bg,
+                   self.fg,
+                   line,
+                   Fg(Reset),
+                   Bg(Reset)).unwrap();
             row += 1;
         }
     }

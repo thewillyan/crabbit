@@ -6,13 +6,10 @@ pub mod runner;
 
 use stage::Stage;
 use object::Obj;
+use termion::color;
 
 // ascii matrix
-type Sprite = Vec<Vec<char>>;
-
-pub trait AsSprite {
-    fn as_sprite(&self) -> Sprite;
-}
+pub type Sprite = Vec<Vec<char>>;
 
 // not used for now
 pub trait Render {
@@ -38,10 +35,12 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(player_sprite: Sprite, stage: Stage) -> Game {
+    pub fn new(player_sprite: Sprite, player_fg: &'static str, stage: Stage)
+        -> Game
+    {
         let floor = stage.floor().expect("Empty stage!");
         let player_height = player_sprite.len() as u16;
-        let player = Player::new(player_sprite, 5, floor - player_height);
+        let player = Player::new(player_sprite, player_fg, 5, floor - player_height);
         Game { player, _obstacles: Obs, stage }
     }
 }
@@ -54,11 +53,16 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(sprite: Sprite, col: u16, row: u16) -> Player {
+    pub fn new(sprite: Sprite, fg: &'static str, col: u16, row: u16) -> Player {
         let score = 0;
         let state = PlayerState::Running;
         let pos = Pos { col, row };
-        let obj = Obj { pos, sprite };
+        let obj = Obj {
+            pos,
+            sprite,
+            fg,
+            bg: color::Reset.bg_str(),
+        };
         Player { score, state, obj }
     }
 
