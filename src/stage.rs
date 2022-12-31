@@ -2,7 +2,7 @@ use std::{
     collections::HashSet,
     io::Write
 };
-use crate::{Size, Sprite, RetObj, AsSprite};
+use crate::{Pos, Size, Sprite, AsSprite, object::RetObj};
 
 pub struct Stage {
     pub size: Size,
@@ -12,9 +12,9 @@ pub struct Stage {
 }
 
 impl Stage {
-    pub fn new(width: usize) -> Stage {
+    pub fn new(width: u16) -> Stage {
         Stage {
-            size: (width, 0),
+            size: Size { width, height: 0 },
             layers: Vec::new(),
             objs: Vec::new(),
             hitmap: HashSet::new(),
@@ -23,28 +23,27 @@ impl Stage {
 
     pub fn floor(&self) -> Option<u16> {
         match self.objs.last() {
-            Some(obj) => Some(obj.pos.1),
+            Some(obj) => Some(obj.pos.row),
             None => None
         }
     }
 
     fn push(&mut self, layer: Layer) {
-        let (_, height) = &mut self.size;
-        let (_, layer_height) = layer.size;
-
         let sprite = layer.as_sprite();
-        let pos = (1, *height as u16 + 1);
-        let size = (sprite[0].len(), sprite.len());
+        let pos = Pos { col: 1, row: self.size.height + 1};
+        let size = Size {
+            width: sprite[0].len() as u16,
+            height: sprite.len() as u16
+        };
         let obj = RetObj { size, pos, sprite };
         self.objs.push(obj);
 
-        *height += layer_height;
+        self.size.height += layer.size.height;
         self.layers.push(layer);
     }
 
     pub fn add_layer(&mut self, sprite: Sprite, bound: bool, shift: usize) {
-        let (width, _) = self.size;
-        let layer = Layer::new(width, sprite, bound, shift);
+        let layer = Layer::new(self.size.width, sprite, bound, shift);
         self.push(layer);
     }
 
@@ -61,9 +60,9 @@ impl Stage {
         self.hitmap.clear();
         for (i, layer) in self.layers.iter().enumerate() {
             if layer.bound {
-                let (_, height) = self.objs[i].size;
-                let (_, y) = self.objs[i].pos;
-                for n in y..(y + height as u16) {
+                let height = self.objs[i].size.height;
+                let row = self.objs[i].pos.row;
+                for n in row..(row + height as u16) {
                     self.hitmap.insert(n);
                 }
             }
@@ -71,7 +70,7 @@ impl Stage {
     }
 
     pub fn add_padding(&mut self, padding: u16) {
-        self.objs.iter_mut().for_each(|obj| obj.pos.1 += padding);
+        self.objs.iter_mut().for_each(|obj| obj.pos.row += padding);
         self.fill_hitmap();
     }
 
@@ -91,16 +90,18 @@ pub struct Layer {
 }
 
 impl Layer {
-    pub fn new(width: usize, mut sprite: Sprite, bound: bool, shift: usize) -> Layer {
+    pub fn new(width: u16, mut sprite: Sprite, bound: bool, shift: usize) -> Layer {
         let offset = 0;
-        let size = (width, sprite.len());
+        let size = Size {
+            width,
+            height: sprite.len() as u16
+        };
         RetObj::to_ret(&mut sprite);
         Layer { size, sprite, bound, offset, shift }
     }
 
     pub fn shift(&mut self) {
-        let (width, _) = self.size;
-        self.offset = (self.offset + self.shift) % width;
+        self.offset = (self.offset + self.shift) % self.size.width as usize;
     }
 
     pub fn is_static(&self) -> bool {
@@ -110,7 +111,8 @@ impl Layer {
 
 impl AsSprite for Layer {
     fn as_sprite(&self) -> Sprite {
-        let (width, height) = self.size;
+        let width = self.size.width as usize;
+        let height = self.size.height as usize;
         let s_width = self.sprite[0].len();
         let mut sprite = vec![Vec::with_capacity(width); height];
         

@@ -1,7 +1,7 @@
 use std::io;
 
 use termion::raw::IntoRawMode;
-use termjumper::{stage::Stage, Game, Runner};
+use termjumper::{stage::Stage, Game, runner::Runner};
 
 fn main() {
     let mut stdout = io::stdout().into_raw_mode().unwrap();
@@ -21,10 +21,10 @@ fn main() {
 
     ];
 
-    let mut stage = Stage::new(cols as usize);
+    let mut stage = Stage::new(cols);
     stage.add_layer(sky, false, 1);
     stage.add_layer(ground, true, 2);
-    stage.add_padding(rows - stage.size.1 as u16);
+    stage.add_padding(rows - stage.size.height);
 
     let player = vec![vec!['O']];
     let game = Game::new(player, stage);
