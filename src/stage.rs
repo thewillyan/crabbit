@@ -2,13 +2,13 @@ use std::{
     collections::HashSet,
     io::Write
 };
-use crate::{Size, Sprite, Obj, AsSprite};
+use crate::{Size, Sprite, RetObj, AsSprite};
 
 pub struct Stage {
     pub size: Size,
     pub layers: Vec<Layer>,
     pub hitmap: HashSet<u16>,
-    objs: Vec<Obj>
+    objs: Vec<RetObj>,
 }
 
 impl Stage {
@@ -24,18 +24,11 @@ impl Stage {
     fn push(&mut self, layer: Layer) {
         let (_, height) = &mut self.size;
         let (_, layer_height) = layer.size;
-        let layer_y = *height as u16 + 1;
 
-        if layer.bound {
-            for y in layer_y..(layer_y + layer_height as u16) {
-                self.hitmap.insert(y);
-            }
-        }
-
-        let obj = Obj {
-            pos: (1, *height as u16 + 1),
-            sprite: layer.as_sprite()
-        };
+        let sprite = layer.as_sprite();
+        let pos = (1, *height as u16 + 1);
+        let size = (sprite[0].len(), sprite.len());
+        let obj = RetObj { size, pos, sprite };
         self.objs.push(obj);
 
         *height += layer_height;
@@ -57,6 +50,24 @@ impl Stage {
         });
     }
 
+    pub fn fill_hitmap(&mut self) {
+        self.hitmap.clear();
+        for (i, layer) in self.layers.iter().enumerate() {
+            if layer.bound {
+                let (_, height) = self.objs[i].size;
+                let (_, y) = self.objs[i].pos;
+                for n in y..(y + height as u16) {
+                    self.hitmap.insert(n);
+                }
+            }
+        }
+    }
+
+    pub fn add_padding(&mut self, padding: u16) {
+        self.objs.iter_mut().for_each(|obj| obj.pos.1 += padding);
+        self.fill_hitmap();
+    }
+
     pub fn render<O: Write>(&self, out: &mut O) {
         for obj in &self.objs {
             obj.render(out);
@@ -73,9 +84,10 @@ pub struct Layer {
 }
 
 impl Layer {
-    pub fn new(width: usize, sprite: Sprite, bound: bool, shift: usize) -> Layer {
+    pub fn new(width: usize, mut sprite: Sprite, bound: bool, shift: usize) -> Layer {
         let offset = 0;
         let size = (width, sprite.len());
+        RetObj::to_ret(&mut sprite);
         Layer { size, sprite, bound, offset, shift }
     }
 
@@ -94,7 +106,7 @@ impl AsSprite for Layer {
         let (width, height) = self.size;
         let s_width = self.sprite[0].len();
         let mut sprite = vec![Vec::with_capacity(width); height];
-
+        
         for j in (self.offset)..(self.offset + width) {
             let j = j % s_width;
             sprite

@@ -1,17 +1,19 @@
 use std::{
     io::{self, Write},
     thread,
-    time::Duration
+    time::Duration,
 };
 
 use termion::{
     raw::IntoRawMode,
-    clear
+    clear,
+    cursor
 };
 use termjumper::stage::Stage;
 
 fn main() {
     let mut stdout = io::stdout().into_raw_mode().unwrap();
+
     write!(stdout, "{}", clear::All).unwrap();
     stdout.flush().unwrap();
 
@@ -22,21 +24,29 @@ fn main() {
     ];
 
     let sky = vec![
-        vec![' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        vec!['.', ' ', '/', '\\', ' ', ' ', ' ', ' ', '+'],
-        vec![' ', '/', ' ', ' ', '\\', '/', '\\', ' ', ' '],
-        vec!['/', ' ', ' ', ' ', '/', ' ', ' ', '\\', ' '],
+        vec![' '; 15],
+        vec!['+', '.', ' ', '/', '\\'],
+        vec![' ', ' ', '/', ' ', ' ', '\\', '/', '\\'],
+        vec![' ', '/', ' ', ' ', ' ', '/', ' ', ' ', '\\'],
 
     ];
 
-    let mut stage = Stage::new(100);
-    stage.add_layer(sky, false, 0);
-    stage.add_layer(ground, true, 1);
+    let (cols, rows) = termion::terminal_size().unwrap();
+
+    let mut stage = Stage::new(cols as usize);
+    stage.add_layer(sky, false, 1);
+    stage.add_layer(ground, true, 2);
+    stage.add_padding(rows - stage.size.1 as u16);
+    stage.fill_hitmap();
+
     for i in 1..=30 {
         stage.render(&mut stdout);
-        write!(stdout, "frame: {}", i).unwrap();
+        write!(stdout, "{}frame: {}", cursor::Goto(1,1), i).unwrap();
         stdout.flush().unwrap();
-        thread::sleep(Duration::from_millis(30));
+        thread::sleep(Duration::from_millis(100));
         stage.shift();
     }
+
+    write!(stdout, "{}{}Hitmap: {:?}\r\n", clear::All, cursor::Goto(1,1), stage.hitmap)
+        .unwrap();
 }
