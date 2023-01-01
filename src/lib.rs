@@ -1,11 +1,12 @@
 use std::io::Write;
+use termion::color::{Bg, Color, Fg};
 
-pub mod stage;
 pub mod object;
 pub mod runner;
+pub mod stage;
 
-use stage::Stage;
 use object::Obj;
+use stage::Stage;
 use termion::color;
 
 // ascii matrix
@@ -25,23 +26,29 @@ pub struct Pos {
 
 pub struct Size {
     pub width: u16,
-    pub height: u16
+    pub height: u16,
 }
 
 pub struct Game {
     player: Player,
     _obstacles: Obs,
-    stage: Stage
+    stage: Stage,
 }
 
 impl Game {
-    pub fn new(player_sprite: Sprite, player_fg: &'static str, stage: Stage)
-        -> Game
-    {
+    pub fn new<C: Color>(player_sprite: Sprite, player_fg: Fg<C>, stage: Stage) -> Game {
         let floor = stage.floor().expect("Empty stage!");
         let player_height = player_sprite.len() as u16;
-        let player = Player::new(player_sprite, player_fg, 5, floor - player_height);
-        Game { player, _obstacles: Obs, stage }
+        let pos = Pos {
+            col: 5,
+            row: floor - player_height,
+        };
+        let player = Player::new(player_sprite, player_fg, pos);
+        Game {
+            player,
+            _obstacles: Obs,
+            stage,
+        }
     }
 }
 
@@ -49,20 +56,14 @@ impl Game {
 pub struct Player {
     pub score: u32,
     pub state: PlayerState,
-    obj: Obj
+    obj: Obj,
 }
 
 impl Player {
-    pub fn new(sprite: Sprite, fg: &'static str, col: u16, row: u16) -> Player {
+    pub fn new<C: Color>(sprite: Sprite, fg: Fg<C>, pos: Pos) -> Player {
         let score = 0;
         let state = PlayerState::Running;
-        let pos = Pos { col, row };
-        let obj = Obj {
-            pos,
-            sprite,
-            fg,
-            bg: color::Reset.bg_str(),
-        };
+        let obj = Obj::new(pos, sprite, Bg(color::Reset), fg);
         Player { score, state, obj }
     }
 
@@ -80,7 +81,7 @@ impl Player {
 pub enum PlayerState {
     Jumping,
     Running,
-    Killed
+    Killed,
 }
 
 // Obstacles

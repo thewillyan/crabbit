@@ -1,26 +1,42 @@
-use std::io::Write;
 use super::{Pos, Size, Sprite};
-use termion::{cursor, color::{Fg, Bg, Reset}};
+use std::io::Write;
+use termion::{
+    color::{Bg, Color, Fg, Reset},
+    cursor,
+};
 
 pub struct Obj {
     pub pos: Pos,
     pub sprite: Sprite,
-    pub bg: &'static str,
-    pub fg: &'static str,
+    pub bg: String,
+    pub fg: String,
 }
 
 impl Obj {
+    pub fn new<C: Color, D: Color>(pos: Pos, sprite: Sprite, bg: Bg<C>, fg: Fg<D>) -> Obj {
+        Obj {
+            pos,
+            sprite,
+            bg: bg.to_string(),
+            fg: fg.to_string(),
+        }
+    }
+
     pub fn render<O: Write>(&self, out: &mut O) {
         let mut row = self.pos.row;
         for line in &self.sprite {
             let line: String = line.iter().collect();
-            write!(out, "{}{}{}{}{}{}",
-                   cursor::Goto(self.pos.col, row),
-                   self.bg,
-                   self.fg,
-                   line,
-                   Fg(Reset),
-                   Bg(Reset)).unwrap();
+            write!(
+                out,
+                "{}{}{}{}{}{}",
+                cursor::Goto(self.pos.col, row),
+                self.bg,
+                self.fg,
+                line,
+                Fg(Reset),
+                Bg(Reset)
+            )
+            .unwrap();
             row += 1;
         }
     }
@@ -29,8 +45,7 @@ impl Obj {
         let mut row = self.pos.row;
         for line in &self.sprite {
             let overwrite = " ".repeat(line.len());
-            write!(out, "{}{}", cursor::Goto(self.pos.col, row), overwrite)
-                .unwrap();
+            write!(out, "{}{}", cursor::Goto(self.pos.col, row), overwrite).unwrap();
             row += 1;
         }
     }
@@ -41,20 +56,25 @@ pub struct RetObj {
     pub size: Size,
     pub pos: Pos,
     pub sprite: Sprite,
-    pub bg: &'static str,
-    pub fg: &'static str
+    pub bg: String,
+    pub fg: String,
 }
 
 impl RetObj {
-    pub fn new(col: u16, row: u16, mut sprite: Sprite, bg: &'static str, fg: &'static str) -> RetObj {
-        let pos = Pos { col, row };
+    pub fn new<C: Color, D: Color>(pos: Pos, mut sprite: Sprite, bg: Bg<C>, fg: Fg<D>) -> RetObj {
         Self::to_ret(&mut sprite);
         let size = Size {
             width: sprite[0].len() as u16,
             height: sprite.len() as u16,
         };
 
-        RetObj { size, pos, sprite, bg, fg }
+        RetObj {
+            size,
+            pos,
+            sprite,
+            bg: bg.to_string(),
+            fg: fg.to_string(),
+        }
     }
 
     pub fn to_ret(sprite: &mut Sprite) {
@@ -75,13 +95,17 @@ impl RetObj {
         let mut row = self.pos.row;
         for line in &self.sprite {
             let line: String = line.iter().collect();
-            write!(out, "{}{}{}{}{}{}",
-                   cursor::Goto(self.pos.col, row),
-                   self.bg,
-                   self.fg,
-                   line,
-                   Fg(Reset),
-                   Bg(Reset)).unwrap();
+            write!(
+                out,
+                "{}{}{}{}{}{}",
+                cursor::Goto(self.pos.col, row),
+                self.bg,
+                self.fg,
+                line,
+                Fg(Reset),
+                Bg(Reset)
+            )
+            .unwrap();
             row += 1;
         }
     }
@@ -90,10 +114,7 @@ impl RetObj {
         let row = self.pos.row;
         let overwrite = " ".repeat(self.size.width as usize);
         for r in row..(row + self.size.height) {
-            write!(out, "{}{}", cursor::Goto(self.pos.col, r), overwrite)
-                .unwrap();
+            write!(out, "{}{}", cursor::Goto(self.pos.col, r), overwrite).unwrap();
         }
     }
 }
-
-

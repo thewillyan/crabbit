@@ -1,11 +1,8 @@
-use std::{
-    collections::HashSet,
-    io::Write
-};
+use std::{collections::HashSet, io::Write};
 
-use termion::color;
+use termion::color::{self, Color, Fg};
 
-use crate::{Pos, Size, Sprite, object::RetObj};
+use crate::{object::RetObj, Pos, Size, Sprite};
 
 pub struct Stage {
     pub size: Size,
@@ -27,24 +24,27 @@ impl Stage {
     pub fn floor(&self) -> Option<u16> {
         match self.objs.last() {
             Some(obj) => Some(obj.pos.row),
-            None => None
+            None => None,
         }
     }
 
-    fn push(&mut self, layer: Layer) {
+    fn push<C: Color>(&mut self, layer: Layer, fg: Fg<C>) {
         let sprite = layer.as_sprite();
-        let pos = Pos { col: 1, row: self.size.height + 1};
+        let pos = Pos {
+            col: 1,
+            row: self.size.height + 1,
+        };
         let size = Size {
             width: sprite[0].len() as u16,
-            height: sprite.len() as u16
+            height: sprite.len() as u16,
         };
 
         let obj = RetObj {
             size,
             pos,
             sprite,
-            bg: color::Reset.bg_str(),
-            fg: layer.fg,
+            bg: color::Reset.bg_str().to_string(),
+            fg: fg.to_string(),
         };
 
         self.objs.push(obj);
@@ -53,9 +53,9 @@ impl Stage {
         self.layers.push(layer);
     }
 
-    pub fn add_layer(&mut self, sprite: Sprite, fg: &'static str, bound: bool, shift: usize) {
-        let layer = Layer::new(self.size.width, sprite, fg, bound, shift);
-        self.push(layer);
+    pub fn add_layer<C: Color>(&mut self, sprite: Sprite, fg: Fg<C>, bound: bool, shift: usize) {
+        let layer = Layer::new(self.size.width, sprite, bound, shift);
+        self.push(layer, fg);
     }
 
     pub fn shift(&mut self) {
@@ -94,7 +94,6 @@ impl Stage {
 
 pub struct Layer {
     pub size: Size,
-    pub fg: &'static str,
     pub sprite: Sprite,
     pub bound: bool,
     pub shift: usize,
@@ -102,16 +101,20 @@ pub struct Layer {
 }
 
 impl Layer {
-    pub fn new(width: u16, mut sprite: Sprite, fg: &'static str, bound: bool, shift: usize)
-        -> Layer
-    {
+    pub fn new(width: u16, mut sprite: Sprite, bound: bool, shift: usize) -> Layer {
         let offset = 0;
         let size = Size {
             width,
-            height: sprite.len() as u16
+            height: sprite.len() as u16,
         };
         RetObj::to_ret(&mut sprite);
-        Layer { size, fg, sprite, bound, offset, shift }
+        Layer {
+            size,
+            sprite,
+            bound,
+            offset,
+            shift,
+        }
     }
 
     pub fn shift(&mut self) {
@@ -127,7 +130,7 @@ impl Layer {
         let height = self.size.height as usize;
         let s_width = self.sprite[0].len();
         let mut sprite = vec![Vec::with_capacity(width); height];
-        
+
         for j in (self.offset)..(self.offset + width) {
             let j = j % s_width;
             sprite
