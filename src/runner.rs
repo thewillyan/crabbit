@@ -6,7 +6,7 @@ use std::{
 };
 use termion::{clear, cursor, event::Key, input::TermRead};
 
-use super::Game;
+use super::{Game, PlayerState};
 
 pub struct Runner;
 
@@ -32,15 +32,17 @@ impl Runner {
             .unwrap();
 
             out.flush().unwrap();
-            thread::sleep(Duration::from_millis(95));
 
             if let Ok(act) = act_stream.try_recv() {
-                match act {
-                    Act::Quit => break,
-                    Act::PlayerJump => game.player.jump(3),
+                match (act, &game.player.state) {
+                    (Act::Quit, _) => break,
+                    (Act::PlayerJump, PlayerState::Running) => game.player.jump(3),
+                    _ => ()
                 }
             }
             game.update();
+
+            thread::sleep(Duration::from_millis(90));
         }
 
         // debug

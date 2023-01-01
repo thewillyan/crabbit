@@ -45,7 +45,7 @@ impl Game {
         let floor = stage.hitmap.iter().min().expect("Empty stage!");
         let player_height = player_sprite.len() as u16;
         let pos = Pos {
-            col: 5,
+            col: 8,
             row: floor - player_height,
         };
         let player = Player::new(player_sprite, player_fg, pos);
@@ -96,21 +96,22 @@ impl Player {
         }
     }
 
-    pub fn up(&mut self, amount: u16) {
+    fn up(&mut self, amount: u16) {
         if self.obj.pos.row > 1 {
             self.moves.push_back(Move::Up(amount));
         }
     }
 
-    pub fn down(&mut self, amount: u16) {
+    fn down(&mut self, amount: u16) {
         self.moves.push_back(Move::Down(amount));
     }
 
-    pub fn stop(&mut self) {
+    fn stop(&mut self) {
         self.moves.push_back(Move::Stop);
     }
 
     pub fn jump(&mut self, height: u16) {
+        self.state = PlayerState::Jumping;
         for _ in 0..height {
             self.up(1);
         }
@@ -129,6 +130,10 @@ impl Player {
                 Move::Down(amount) => self.obj.pos.row += amount,
                 _ => (),
             }
+        }
+
+        if self.moves.is_empty() {
+            self.state = PlayerState::Running;
         }
     }
 
