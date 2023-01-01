@@ -38,6 +38,5 @@ fn main() {
     let player = vec![vec!['O']];
     let game = Game::new(player, color::Fg(color::Yellow), stage);
 
-    let mut runner = Runner::new(game);
-    runner.run(&mut stdout);
+    Runner::run(game, &mut stdout);
 }

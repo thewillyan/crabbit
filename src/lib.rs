@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::{collections::LinkedList, io::Write};
 use termion::{
     color::{Bg, Color, Fg},
     cursor,
@@ -59,6 +59,7 @@ impl Game {
 
     pub fn update(&mut self) {
         self.player.score += 1;
+        self.player.mv();
         self.stage.shift();
     }
 
@@ -81,30 +82,66 @@ impl Game {
 pub struct Player {
     pub score: u32,
     pub state: PlayerState,
+    pub moves: LinkedList<Move>,
     obj: Obj,
 }
 
 impl Player {
     pub fn new<C: Color>(sprite: Sprite, fg: Fg<C>, pos: Pos) -> Player {
-        let score = 0;
-        let state = PlayerState::Running;
-        let obj = Obj::new(pos, sprite, Bg(color::Reset), fg);
-        Player { score, state, obj }
-    }
-
-    pub fn up(&mut self) {
-        if self.obj.pos.row > 1 {
-            self.obj.pos.row -= 1
+        Player {
+            score: 0,
+            state: PlayerState::Running,
+            moves: LinkedList::new(),
+            obj: Obj::new(pos, sprite, Bg(color::Reset), fg),
         }
     }
 
-    pub fn down(&mut self) {
-        self.obj.pos.row += 1
+    pub fn up(&mut self, amount: u16) {
+        if self.obj.pos.row > 1 {
+            self.moves.push_back(Move::Up(amount));
+        }
+    }
+
+    pub fn down(&mut self, amount: u16) {
+        self.moves.push_back(Move::Down(amount));
+    }
+
+    pub fn stop(&mut self) {
+        self.moves.push_back(Move::Stop);
+    }
+
+    pub fn jump(&mut self, height: u16) {
+        for _ in 0..height {
+            self.up(1);
+        }
+
+        self.stop();
+        self.stop();
+
+        for _ in 0..height {
+            self.down(1);
+        }
+    }
+
+    pub fn mv(&mut self) {
+        if let Some(mv) = self.moves.pop_front() {
+            match mv {
+                Move::Up(amount) if self.obj.pos.row > amount => self.obj.pos.row -= amount,
+                Move::Down(amount) => self.obj.pos.row += amount,
+                _ => (),
+            }
+        }
     }
 
     pub fn render<O: Write>(&self, out: &mut O) {
         self.obj.render(out);
     }
+}
+
+pub enum Move {
+    Up(u16),
+    Down(u16),
+    Stop,
 }
 
 pub enum PlayerState {
