@@ -17,33 +17,34 @@ impl Runner {
     }
 
     pub fn run<O: Write>(&mut self, out: &mut O) {
-        let stage = &mut self.game.stage;
-        stage.fill_hitmap();
-        let player = &self.game.player;
+        self.game.stage.fill_hitmap();
 
         write!(out, "{}", clear::All).unwrap();
         for i in 1..=30 {
-            stage.render(out);
-            player.obj.render(out);
+            self.game.render(out);
+
+            // debug
             write!(out, "{}frame: {}", cursor::Goto(1, 1), i).unwrap();
             write!(
                 out,
                 "{}player possition: {:?}",
                 cursor::Goto(1, 2),
-                player.obj.pos
+                self.game.player.obj.pos
             )
             .unwrap();
+
             out.flush().unwrap();
-            thread::sleep(Duration::from_millis(100));
-            stage.shift();
+            thread::sleep(Duration::from_millis(95));
+            self.game.update();
         }
 
+        // debug
         write!(
             out,
             "{}{}Hitmap: {:?}\r\n",
             clear::All,
             cursor::Goto(1, 1),
-            stage.hitmap
+            self.game.stage.hitmap
         )
         .unwrap();
     }
