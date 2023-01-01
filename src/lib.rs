@@ -116,7 +116,6 @@ impl Player {
         }
 
         self.stop();
-        self.stop();
 
         for _ in 0..height {
             self.down(1);

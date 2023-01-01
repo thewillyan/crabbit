@@ -95,6 +95,7 @@ impl Stage {
 pub struct Layer {
     pub size: Size,
     pub sprite: Sprite,
+    pub sprite_width: usize,
     pub bound: bool,
     pub shift: usize,
     pub offset: usize,
@@ -102,43 +103,45 @@ pub struct Layer {
 
 impl Layer {
     pub fn new(width: u16, mut sprite: Sprite, bound: bool, shift: usize) -> Layer {
+        RetObj::to_ret(&mut sprite);
+        let sprite_width = sprite[0].len();
         let offset = 0;
         let size = Size {
             width,
             height: sprite.len() as u16,
         };
-        RetObj::to_ret(&mut sprite);
         Layer {
             size,
             sprite,
+            sprite_width,
             bound,
             offset,
             shift,
         }
     }
 
-    pub fn shift(&mut self) {
-        self.offset = (self.offset + self.shift) % self.size.width as usize;
-    }
-
     pub fn is_static(&self) -> bool {
         self.shift == 0
+    }
+
+    pub fn shift(&mut self) {
+        self.offset = (self.offset + self.shift) % self.sprite_width;
     }
 
     fn as_sprite(&self) -> Sprite {
         let width = self.size.width as usize;
         let height = self.size.height as usize;
-        let s_width = self.sprite[0].len();
-        let mut sprite = vec![Vec::with_capacity(width); height];
+
+        let mut ascii_matrix = vec![Vec::with_capacity(width); height];
 
         for j in (self.offset)..(self.offset + width) {
-            let j = j % s_width;
-            sprite
+            let j = j % self.sprite_width;
+            ascii_matrix
                 .iter_mut()
                 .enumerate()
                 .for_each(|(i, x)| x.push(self.sprite[i][j]))
         }
 
-        sprite
+        ascii_matrix
     }
 }

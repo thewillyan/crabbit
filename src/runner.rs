@@ -16,6 +16,7 @@ impl Runner {
 
         write!(out, "{}{}", clear::All, cursor::Hide).unwrap();
         let mut frame = 0;
+
         loop {
             game.render(out);
 
