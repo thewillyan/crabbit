@@ -6,30 +6,22 @@ use std::{
 };
 use termion::{clear, cursor, event::Key, input::TermRead};
 
-use super::{Game, PlayerState};
+use super::{Game, player::PlayerState};
 
 pub struct Runner;
 
 impl Runner {
     pub fn run<O: Write>(mut game: Game, out: &mut O) {
         let act_stream = Self::act_input();
-
-        write!(out, "{}{}", clear::All, cursor::Hide).unwrap();
         let mut frame = 0;
 
+        write!(out, "{}{}", clear::All, cursor::Hide).unwrap();
         loop {
             game.render(out);
 
             // debug
             frame += 1;
             write!(out, "{}frame: {}", cursor::Goto(1, 1), frame).unwrap();
-            write!(
-                out,
-                "{}player possition: {:?}",
-                cursor::Goto(1, 2),
-                game.player.obj.pos
-            )
-            .unwrap();
 
             out.flush().unwrap();
 
@@ -37,12 +29,12 @@ impl Runner {
                 match (act, &game.player.state) {
                     (Act::Quit, _) => break,
                     (Act::PlayerJump, PlayerState::Running) => game.player.jump(3),
-                    _ => ()
+                    _ => (),
                 }
             }
             game.update();
 
-            thread::sleep(Duration::from_millis(90));
+            thread::sleep(Duration::from_millis(70));
         }
 
         // debug

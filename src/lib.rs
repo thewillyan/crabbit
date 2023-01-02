@@ -1,27 +1,20 @@
-use std::{collections::LinkedList, io::Write};
+use std::io::Write;
 use termion::{
-    color::{Bg, Color, Fg},
+    color::{Color, Fg},
     cursor,
 };
 
 pub mod object;
+pub mod player;
 pub mod runner;
 pub mod stage;
 
-use object::Obj;
+use player::Player;
 use stage::Stage;
-use termion::color;
 
 // ascii matrix
 pub type Sprite = Vec<Vec<char>>;
 
-// not used for now
-pub trait Render {
-    fn render<O: Write>(&self, out: &mut O);
-    fn erase<O: Write>(&self, out: &mut O);
-}
-
-#[derive(Debug)]
 pub struct Pos {
     pub col: u16,
     pub row: u16,
@@ -76,82 +69,6 @@ impl Game {
         self.player.render(out);
         write!(out, "{}{}", cursor::Goto(corner, 1), score).expect("Error while rendering score!");
     }
-}
-
-// Player
-pub struct Player {
-    pub score: u32,
-    pub state: PlayerState,
-    pub moves: LinkedList<Move>,
-    obj: Obj,
-}
-
-impl Player {
-    pub fn new<C: Color>(sprite: Sprite, fg: Fg<C>, pos: Pos) -> Player {
-        Player {
-            score: 0,
-            state: PlayerState::Running,
-            moves: LinkedList::new(),
-            obj: Obj::new(pos, sprite, Bg(color::Reset), fg),
-        }
-    }
-
-    fn up(&mut self, amount: u16) {
-        if self.obj.pos.row > 1 {
-            self.moves.push_back(Move::Up(amount));
-        }
-    }
-
-    fn down(&mut self, amount: u16) {
-        self.moves.push_back(Move::Down(amount));
-    }
-
-    fn stop(&mut self) {
-        self.moves.push_back(Move::Stop);
-    }
-
-    pub fn jump(&mut self, height: u16) {
-        self.state = PlayerState::Jumping;
-        for _ in 0..height {
-            self.up(1);
-        }
-
-        self.stop();
-
-        for _ in 0..height {
-            self.down(1);
-        }
-    }
-
-    pub fn mv(&mut self) {
-        if let Some(mv) = self.moves.pop_front() {
-            match mv {
-                Move::Up(amount) if self.obj.pos.row > amount => self.obj.pos.row -= amount,
-                Move::Down(amount) => self.obj.pos.row += amount,
-                _ => (),
-            }
-        }
-
-        if self.moves.is_empty() {
-            self.state = PlayerState::Running;
-        }
-    }
-
-    pub fn render<O: Write>(&self, out: &mut O) {
-        self.obj.render(out);
-    }
-}
-
-pub enum Move {
-    Up(u16),
-    Down(u16),
-    Stop,
-}
-
-pub enum PlayerState {
-    Jumping,
-    Running,
-    Killed,
 }
 
 // Obstacles
