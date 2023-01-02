@@ -6,7 +6,7 @@ use std::{
 };
 use termion::{clear, cursor, event::Key, input::TermRead};
 
-use super::{Game, player::PlayerState};
+use crate::{player::PlayerState, Game};
 
 pub struct Runner;
 
@@ -63,7 +63,6 @@ impl Runner {
                 }
             }
         });
-
         rx
     }
 }

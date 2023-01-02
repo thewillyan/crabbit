@@ -7,13 +7,12 @@ use termion::{
 pub mod object;
 pub mod player;
 pub mod runner;
+pub mod sprite;
 pub mod stage;
 
 use player::Player;
+use sprite::Sprite;
 use stage::Stage;
-
-// ascii matrix
-pub type Sprite = Vec<Vec<char>>;
 
 pub struct Pos {
     pub col: u16,

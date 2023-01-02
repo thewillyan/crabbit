@@ -2,7 +2,11 @@ use std::{collections::HashSet, io::Write};
 
 use termion::color::{self, Color, Fg};
 
-use crate::{object::RetObj, Pos, Size, Sprite};
+use crate::{
+    object::RetObj,
+    sprite::{self, Sprite},
+    Pos, Size,
+};
 
 pub struct Stage {
     pub size: Size,
@@ -53,8 +57,15 @@ impl Stage {
         self.layers.push(layer);
     }
 
-    pub fn add_layer<C: Color>(&mut self, sprite: Sprite, fg: Fg<C>, bound: bool, shift: usize) {
-        let layer = Layer::new(self.size.width, sprite, bound, shift);
+    pub fn add_layer<C: Color>(
+        &mut self,
+        sprite: Sprite,
+        fg: Fg<C>,
+        gap: usize,
+        barrier: bool,
+        shift: usize,
+    ) {
+        let layer = Layer::new(self.size.width, sprite, gap, barrier, shift);
         self.push(layer, fg);
     }
 
@@ -70,7 +81,7 @@ impl Stage {
     pub fn fill_hitmap(&mut self) {
         self.hitmap.clear();
         for (i, layer) in self.layers.iter().enumerate() {
-            if layer.bound {
+            if layer.barrier {
                 let height = self.objs[i].size.height;
                 let row = self.objs[i].pos.row;
                 for n in row..(row + height as u16) {
@@ -96,14 +107,17 @@ pub struct Layer {
     pub size: Size,
     pub sprite: Sprite,
     pub sprite_width: usize,
-    pub bound: bool,
+    pub barrier: bool,
     pub shift: usize,
     pub offset: usize,
 }
 
 impl Layer {
-    pub fn new(width: u16, mut sprite: Sprite, bound: bool, shift: usize) -> Layer {
-        RetObj::to_ret(&mut sprite);
+    pub fn new(width: u16, mut sprite: Sprite, gap: usize, barrier: bool, shift: usize) -> Layer {
+        // format sprite
+        sprite::to_ret(&mut sprite);
+        sprite::stretch(&mut sprite, gap, ' ');
+
         let sprite_width = sprite[0].len();
         let offset = 0;
         let size = Size {
@@ -114,7 +128,7 @@ impl Layer {
             size,
             sprite,
             sprite_width,
-            bound,
+            barrier,
             offset,
             shift,
         }

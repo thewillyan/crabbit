@@ -7,13 +7,12 @@ fn main() {
     let (cols, rows) = termion::terminal_size().unwrap();
 
     let sky = vec![
-        vec![' '; 40],
         vec![' ', '.', ' ', ' ', ' ', ' ', '*'],
         vec![' ', ' ', '.', '+'],
     ];
 
     let mountains = vec![
-        vec![' '; 13],
+        vec![' '],
         vec![' ', ' ', ' ', '/', '\\'],
         vec![' ', ' ', '/', ' ', ' ', '\\', '/', '\\'],
         vec![' ', '/', ' ', ' ', ' ', '/', ' ', ' ', '\\'],
@@ -27,9 +26,9 @@ fn main() {
 
     let mut stage = Stage::new(cols);
 
-    stage.add_layer(sky, color::Fg(color::White), false, 1);
-    stage.add_layer(mountains, color::Fg(color::LightBlack), false, 1);
-    stage.add_layer(ground, color::Fg(color::Green), true, 2);
+    stage.add_layer(sky, color::Fg(color::White), 40, false, 1);
+    stage.add_layer(mountains, color::Fg(color::LightBlack), 4, false, 1);
+    stage.add_layer(ground, color::Fg(color::Green), 0, true, 2);
 
     if rows > stage.size.height {
         stage.add_padding(rows - stage.size.height);

@@ -1,7 +1,7 @@
 use std::{collections::LinkedList, io::Write};
 use termion::color::{Bg, Color, Fg, Reset};
 
-use crate::{object::Obj, Pos, Sprite};
+use crate::{object::Obj, sprite::Sprite, Pos};
 
 pub struct Player {
     pub score: u32,

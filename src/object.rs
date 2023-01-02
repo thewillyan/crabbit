@@ -1,4 +1,4 @@
-use super::{Pos, Size, Sprite};
+use super::{Pos, Size, sprite::{self, Sprite}};
 use std::io::Write;
 use termion::{
     color::{Bg, Color, Fg, Reset},
@@ -62,7 +62,7 @@ pub struct RetObj {
 
 impl RetObj {
     pub fn new<C: Color, D: Color>(pos: Pos, mut sprite: Sprite, bg: Bg<C>, fg: Fg<D>) -> RetObj {
-        Self::to_ret(&mut sprite);
+        sprite::to_ret(&mut sprite);
         let size = Size {
             width: sprite[0].len() as u16,
             height: sprite.len() as u16,
@@ -75,20 +75,6 @@ impl RetObj {
             bg: bg.to_string(),
             fg: fg.to_string(),
         }
-    }
-
-    pub fn to_ret(sprite: &mut Sprite) {
-        let width = sprite
-            .iter()
-            .map(|line| line.len())
-            .max()
-            .expect("Empty sprite!");
-        sprite.iter_mut().for_each(|line| {
-            // add padding right
-            while line.len() < width {
-                line.push(' ');
-            }
-        });
     }
 
     pub fn render<O: Write>(&self, out: &mut O) {
