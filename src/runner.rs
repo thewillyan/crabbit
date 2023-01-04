@@ -6,25 +6,20 @@ use std::{
 };
 use termion::{clear, cursor, event::Key, input::TermRead};
 
-use crate::{player::PlayerState, Game};
+use crate::{killers::Hitmap, player::PlayerState, Game};
 
 pub struct Runner;
 
 impl Runner {
     pub fn run<O: Write>(mut game: Game, out: &mut O) {
         let act_stream = Self::act_input();
-        let mut frame = 0;
 
         write!(out, "{}{}", clear::All, cursor::Hide).unwrap();
         loop {
             game.render(out);
-
-            // debug
-            frame += 1;
-            write!(out, "{}frame: {}", cursor::Goto(1, 1), frame).unwrap();
-
             out.flush().unwrap();
 
+            // check user input
             if let Ok(act) = act_stream.try_recv() {
                 match (act, &game.player.state) {
                     (Act::Quit, _) => break,
@@ -34,21 +29,18 @@ impl Runner {
             }
             game.update();
 
+            //check if player has died
+            let player_pos = &game.player.obj.pos;
+            let has_died = game.walls.hits(player_pos);
+
+            if has_died {
+                game.player.kill();
+                break;
+            }
+
             thread::sleep(Duration::from_millis(70));
         }
-
-        // debug
-        write!(
-            out,
-            "{}{}Stage Hitmap: {:?} | Walls Hitmap: {:?}\r\n",
-            clear::All,
-            cursor::Goto(1, 1),
-            game.stage.hitmap,
-            game.walls.hitmap
-        )
-        .unwrap();
-
-        write!(out, "{}", cursor::Show).unwrap();
+        write!(out, "{}{}\r\n", cursor::Show, clear::All).unwrap();
     }
 
     pub fn act_input() -> Receiver<Act> {

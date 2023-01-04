@@ -6,8 +6,8 @@ use crate::{object::Obj, sprite::Sprite, Pos};
 pub struct Player {
     pub score: u32,
     pub state: PlayerState,
-    pub moves: VecDeque<Move>,
-    obj: Obj,
+    pub obj: Obj,
+    moves: VecDeque<Move>,
 }
 
 impl Player {
@@ -43,6 +43,10 @@ impl Player {
         for _ in 0..height {
             self.down(1);
         }
+    }
+
+    pub fn kill(&mut self) {
+        self.state = PlayerState::Killed;
     }
 
     pub fn mv(&mut self) {

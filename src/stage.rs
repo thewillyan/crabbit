@@ -1,4 +1,4 @@
-use std::{collections::HashSet, io::Write};
+use std::{collections::VecDeque, io::Write};
 
 use termion::color::{self, Color, Fg};
 
@@ -11,8 +11,8 @@ use crate::{
 pub struct Stage {
     pub size: Size,
     pub layers: Vec<Layer>,
-    pub hitmap: HashSet<u16>,
     objs: Vec<RetObj>,
+    hitmap: VecDeque<u16>,
 }
 
 impl Stage {
@@ -21,15 +21,12 @@ impl Stage {
             size: Size { width, height: 0 },
             layers: Vec::new(),
             objs: Vec::new(),
-            hitmap: HashSet::new(),
+            hitmap: VecDeque::new(),
         }
     }
 
-    pub fn floor(&self) -> Option<u16> {
-        match self.objs.last() {
-            Some(obj) => Some(obj.pos.row),
-            None => None,
-        }
+    pub fn floor(&self) -> Option<&u16> {
+        self.hitmap.front()
     }
 
     fn push<C: Color>(&mut self, layer: Layer, fg: Fg<C>) {
@@ -85,7 +82,7 @@ impl Stage {
                 let height = self.objs[i].size.height;
                 let row = self.objs[i].pos.row;
                 for n in row..(row + height as u16) {
-                    self.hitmap.insert(n);
+                    self.hitmap.push_back(n);
                 }
             }
         }

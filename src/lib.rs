@@ -38,7 +38,7 @@ impl Game {
     pub fn new<C: Color>(player_sprite: Sprite, player_fg: Fg<C>, mut stage: Stage) -> Game {
         stage.fill_hitmap();
 
-        let floor = stage.hitmap.iter().min().expect("Empty stage!");
+        let floor = *stage.floor().expect("Empty stage!");
         let player_height = player_sprite.len() as u16;
         let pos = Pos {
             col: 8,
@@ -47,7 +47,7 @@ impl Game {
         let player = Player::new(player_sprite, player_fg, pos);
         let walls_pos = Pos {
             col: stage.size.width,
-            row: *floor,
+            row: floor,
         };
         let walls = Walls::new(walls_pos, '|', 4, 2);
 

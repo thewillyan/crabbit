@@ -1,12 +1,13 @@
-use std::{
-    collections::{HashSet, VecDeque},
-    io::Write,
-};
+use std::{collections::VecDeque, io::Write};
 
 use rand::{distributions::Bernoulli, prelude::Distribution};
 use termion::color::{Bg, Fg, Red, Reset};
 
 use crate::{object::RetObj, Pos};
+
+pub trait Hitmap {
+    fn hits(&self, pos: &Pos) -> bool;
+}
 
 // each wall is, at most, 2 rows high.
 pub struct Walls {
@@ -14,7 +15,6 @@ pub struct Walls {
     pub sprite_char: char,
     pub gap: u8,
     pub speed: u16,
-    pub hitmap: HashSet<(u16, u16)>,
     queue: VecDeque<Wall>,
     objs: VecDeque<RetObj>,
     wall_prob: Bernoulli,
@@ -29,7 +29,6 @@ impl Walls {
             speed,
             queue: VecDeque::new(),
             objs: VecDeque::new(),
-            hitmap: HashSet::new(),
             // chance of having a wall: 16% per chunk
             wall_prob: Bernoulli::from_ratio(16, 100).unwrap(),
         }
@@ -69,13 +68,6 @@ impl Walls {
         }
     }
 
-    pub fn fill_hitmap(&mut self) {
-        self.hitmap.clear();
-        for obj in &self.objs {
-            self.hitmap.insert((obj.pos.col, obj.pos.row));
-        }
-    }
-
     pub fn update(&mut self) {
         self.shift_objs();
         self.clean_objs();
@@ -88,13 +80,30 @@ impl Walls {
             }
             None => self.gen_walls(),
         }
-        self.fill_hitmap();
     }
 
     pub fn render<O: Write>(&self, out: &mut O) {
         for obj in &self.objs {
             obj.render(out);
         }
+    }
+}
+
+impl Hitmap for Walls {
+    fn hits(&self, pos: &Pos) -> bool {
+        for obj in &self.objs {
+            let col = obj.pos.col + (obj.pos.col % self.speed);
+            let row_range = obj.pos.row..(obj.pos.row + obj.size.height);
+
+            if col > pos.col {
+                return false;
+            }
+
+            if col == pos.col && row_range.contains(&pos.row) {
+                return true;
+            }
+        }
+        false
     }
 }
 
