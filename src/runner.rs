@@ -40,10 +40,11 @@ impl Runner {
         // debug
         write!(
             out,
-            "{}{}Hitmap: {:?}\r\n",
+            "{}{}Stage Hitmap: {:?} | Walls Hitmap: {:?}\r\n",
             clear::All,
             cursor::Goto(1, 1),
-            game.stage.hitmap
+            game.stage.hitmap,
+            game.walls.hitmap
         )
         .unwrap();
 

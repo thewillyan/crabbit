@@ -1,9 +1,11 @@
+use killers::Walls;
 use std::io::Write;
 use termion::{
     color::{Color, Fg},
     cursor,
 };
 
+pub mod killers;
 pub mod object;
 pub mod player;
 pub mod runner;
@@ -14,11 +16,13 @@ use player::Player;
 use sprite::Sprite;
 use stage::Stage;
 
+#[derive(Clone)]
 pub struct Pos {
     pub col: u16,
     pub row: u16,
 }
 
+#[derive(Clone)]
 pub struct Size {
     pub width: u16,
     pub height: u16,
@@ -26,8 +30,8 @@ pub struct Size {
 
 pub struct Game {
     player: Player,
-    _obstacles: Obs,
     stage: Stage,
+    walls: Walls,
 }
 
 impl Game {
@@ -41,18 +45,24 @@ impl Game {
             row: floor - player_height,
         };
         let player = Player::new(player_sprite, player_fg, pos);
+        let walls_pos = Pos {
+            col: stage.size.width,
+            row: *floor,
+        };
+        let walls = Walls::new(walls_pos, '|', 4, 2);
 
         Game {
             player,
-            _obstacles: Obs,
+            walls,
             stage,
         }
     }
 
     pub fn update(&mut self) {
+        self.stage.shift();
+        self.walls.update();
         self.player.score += 1;
         self.player.mv();
-        self.stage.shift();
     }
 
     pub fn render<O: Write>(&self, out: &mut O) {
@@ -65,10 +75,8 @@ impl Game {
         };
 
         self.stage.render(out);
+        self.walls.render(out);
         self.player.render(out);
         write!(out, "{}{}", cursor::Goto(corner, 1), score).expect("Error while rendering score!");
     }
 }
-
-// Obstacles
-pub struct Obs;
