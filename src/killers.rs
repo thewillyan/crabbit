@@ -1,6 +1,6 @@
 use std::{
-    collections::{HashSet, LinkedList},
-    io::Write, borrow::BorrowMut,
+    collections::{HashSet, VecDeque},
+    io::Write,
 };
 
 use rand::{distributions::Bernoulli, prelude::Distribution};
@@ -15,8 +15,8 @@ pub struct Walls {
     pub gap: u8,
     pub speed: u16,
     pub hitmap: HashSet<(u16, u16)>,
-    queue: LinkedList<Wall>,
-    objs: LinkedList<RetObj>,
+    queue: VecDeque<Wall>,
+    objs: VecDeque<RetObj>,
     wall_prob: Bernoulli,
 }
 
@@ -27,8 +27,8 @@ impl Walls {
             sprite_char,
             gap,
             speed,
-            queue: LinkedList::new(),
-            objs: LinkedList::new(),
+            queue: VecDeque::new(),
+            objs: VecDeque::new(),
             hitmap: HashSet::new(),
             // chance of having a wall: 16% per chunk
             wall_prob: Bernoulli::from_ratio(16, 100).unwrap(),
@@ -57,10 +57,7 @@ impl Walls {
 
     pub fn shift_objs(&mut self) {
         self.objs.iter_mut().for_each(|obj| {
-            obj.pos.col = match obj.pos.col.checked_sub(self.speed) {
-                Some(n) => n,
-                None => 0,
-            };
+            obj.pos.col = obj.pos.col.checked_sub(self.speed).unwrap_or(0);
         });
     }
 
@@ -115,7 +112,7 @@ impl Wall {
             Self::Small => 1,
             Self::Void => return None,
         };
-        pos.row -= h;
+        pos.row = pos.row.checked_sub(h).unwrap_or(1);
 
         let sprite = vec![vec![sprite_char]; h as usize];
         let obj = RetObj::new(pos, sprite, Bg(Reset), Fg(Red));

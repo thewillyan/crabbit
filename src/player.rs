@@ -1,4 +1,4 @@
-use std::{collections::LinkedList, io::Write};
+use std::{collections::VecDeque, io::Write};
 use termion::color::{Bg, Color, Fg, Reset};
 
 use crate::{object::Obj, sprite::Sprite, Pos};
@@ -6,7 +6,7 @@ use crate::{object::Obj, sprite::Sprite, Pos};
 pub struct Player {
     pub score: u32,
     pub state: PlayerState,
-    pub moves: LinkedList<Move>,
+    pub moves: VecDeque<Move>,
     obj: Obj,
 }
 
@@ -15,7 +15,7 @@ impl Player {
         Player {
             score: 0,
             state: PlayerState::Running,
-            moves: LinkedList::new(),
+            moves: VecDeque::new(),
             obj: Obj::new(pos, sprite, Bg(Reset), fg),
         }
     }

@@ -1,4 +1,7 @@
-use super::{Pos, Size, sprite::{self, Sprite}};
+use crate::{
+    sprite::{self, Sprite},
+    Pos, Size,
+};
 use std::io::Write;
 use termion::{
     color::{Bg, Color, Fg, Reset},
