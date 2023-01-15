@@ -1,20 +1,17 @@
-use killers::Walls;
 use std::io::Write;
 use termion::{
     color::{Color, Fg},
     cursor,
 };
 
-pub mod killers;
-pub mod object;
-pub mod player;
+pub mod enemies;
+pub mod components;
+pub mod graphics;
 pub mod runner;
-pub mod sprite;
-pub mod stage;
 
-use player::Player;
-use sprite::Sprite;
-use stage::Stage;
+use components::{player::Player, stage::Stage};
+use graphics::sprite::Sprite;
+use enemies::walls::Walls;
 
 #[derive(Clone)]
 pub struct Pos {

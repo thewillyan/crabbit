@@ -19,24 +19,32 @@ impl Sprite {
         Sprite { size, chars }
     }
 
-    // returns the sprite size as a tuple (width, height)
+    /// returns the sprite size as a tuple (width, height)
     pub fn size(&self) -> (u16, u16) {
         (self.size.width, self.size.height)
     }
 
-    // returns the number of characters that the sprite has
+    /// returns the number of characters that the sprite has
     pub fn len(&self) -> usize {
         self.chars.len()
     }
 
-    // returns the element at the i line and j column
+    /// returns the element at the i line and j column
     pub fn get(&self, i: u16, j: u16) -> Option<&char> {
         let (i, j) = (i as usize, j as usize);
         let idx = (i * self.size.width as usize) + j;
         self.chars.get(idx)
     }
 
-    // stretch sprite "size" times with a given char
+    /// update the visual representation of the sprite
+    pub fn update(&mut self, ascii_matrix: Vec<char>) {
+        if ascii_matrix.len() != self.chars.len() {
+            panic!("Failed to update sprite: new ascii matrix has different size.");
+        }
+        self.chars = ascii_matrix;
+    }
+
+    /// stretch sprite "size" times with a given char
     pub fn stretch(&mut self, size: usize, c: char) {
         let padding = vec![c; size];
         let width = self.size.width as usize;
@@ -51,7 +59,7 @@ impl Sprite {
         self.size.width += size as u16;
     }
 
-    // returns a iterator over the sprite rows
+    /// returns a iterator over the sprite rows
     pub fn rows(&self) -> Chunks<char> {
         self.chars.chunks(self.size.width as usize)
     }

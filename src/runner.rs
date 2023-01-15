@@ -6,7 +6,7 @@ use std::{
 };
 use termion::{clear, cursor, event::Key, input::TermRead};
 
-use crate::{killers::Hitmap, player::PlayerState, Game};
+use crate::{components::player::PlayerState, enemies::Hitmap, Game};
 
 pub struct Runner;
 

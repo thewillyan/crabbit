@@ -1,7 +1,10 @@
 use std::{collections::VecDeque, io::Write};
 use termion::color::{Color, Fg};
 
-use crate::{object::Obj, sprite::Sprite, Pos};
+use crate::{
+    graphics::{object::Obj, sprite::Sprite},
+    Pos,
+};
 
 pub struct Player {
     pub score: u32,

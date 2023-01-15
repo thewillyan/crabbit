@@ -3,11 +3,11 @@ use std::{collections::VecDeque, io::Write};
 use rand::{distributions::Bernoulli, prelude::Distribution};
 use termion::color::{Fg, Red};
 
-use crate::{object::Obj, Pos, sprite::Sprite};
-
-pub trait Hitmap {
-    fn hits(&self, pos: &Pos) -> bool;
-}
+use crate::{
+    enemies::Hitmap,
+    graphics::{object::Obj, sprite::Sprite},
+    Pos,
+};
 
 // each wall is, at most, 2 rows high.
 pub struct Walls {
@@ -30,7 +30,7 @@ impl Walls {
             queue: VecDeque::new(),
             objs: VecDeque::new(),
             // chance of having a wall: 16% per chunk
-            wall_prob: Bernoulli::from_ratio(16, 100).unwrap(),
+            wall_prob: Bernoulli::from_ratio(16, 100).expect("Failed to create Bernoulli."),
         }
     }
 

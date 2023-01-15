@@ -1,4 +1,4 @@
-use crate::{sprite::Sprite, Pos};
+use crate::{graphics::sprite::Sprite, Pos};
 use std::io::Write;
 use termion::{
     color::{Bg, Color, Fg, Reset},

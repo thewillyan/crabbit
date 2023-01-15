@@ -2,7 +2,10 @@ use std::{collections::VecDeque, io::Write};
 
 use termion::color::{Color, Fg};
 
-use crate::{object::Obj, sprite::Sprite, Pos, Size};
+use crate::{
+    graphics::{object::Obj, sprite::Sprite},
+    Pos, Size,
+};
 
 pub struct Stage {
     pub size: Size,
@@ -60,7 +63,7 @@ impl Stage {
         self.layers.iter_mut().enumerate().for_each(|(i, layer)| {
             if !layer.is_static() {
                 layer.shift();
-                self.objs[i].sprite = layer.as_sprite();
+                self.objs[i].sprite.update(layer.ascii_matrix());
             }
         });
     }
@@ -125,7 +128,7 @@ impl Layer {
         self.offset = (self.offset + self.shift) % self.sprite.size().0;
     }
 
-    fn as_sprite(&self) -> Sprite {
+    pub fn ascii_matrix(&self) -> Vec<char> {
         let width = self.size.width;
         let (sp_width, sp_height) = self.sprite.size();
         let mut ascii_matrix = Vec::with_capacity((width * sp_height) as usize);
@@ -138,6 +141,11 @@ impl Layer {
             }
         }
 
+        ascii_matrix
+    }
+
+    pub fn as_sprite(&self) -> Sprite {
+        let ascii_matrix = self.ascii_matrix();
         Sprite::new(ascii_matrix, self.size.width)
     }
 }
