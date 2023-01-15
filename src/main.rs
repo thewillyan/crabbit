@@ -1,28 +1,31 @@
 use std::io;
 use termion::{color, raw::IntoRawMode};
-use termjumper::{runner::Runner, stage::Stage, Game};
+use termjumper::{runner::Runner, stage::Stage, Game, sprite::Sprite};
 
 fn main() {
     let mut stdout = io::stdout().into_raw_mode().unwrap();
     let (cols, rows) = termion::terminal_size().unwrap();
 
     let sky = vec![
-        vec![' ', '.', ' ', ' ', ' ', ' ', '*'],
-        vec![' ', ' ', '.', '+'],
+        ' ', '.', ' ', ' ', ' ', ' ', '*',
+        ' ', ' ', '.', '+', ' ', ' ', ' '
     ];
+    let sky = Sprite::new(sky, 7);
 
     let mountains = vec![
-        vec![' '],
-        vec![' ', ' ', ' ', '/', '\\'],
-        vec![' ', ' ', '/', ' ', ' ', '\\', '/', '\\'],
-        vec![' ', '/', ' ', ' ', ' ', '/', ' ', ' ', '\\'],
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', '/', '\\', ' ', ' ', ' ', ' ',
+        ' ', ' ', '/', ' ', ' ', '\\', '/', '\\', ' ',
+        ' ', '/', ' ', ' ', ' ', '/', ' ', ' ', '\\'
     ];
+    let mountains = Sprite::new(mountains, 9);
 
     let ground = vec![
-        vec!['-', '^', '-'],
-        vec![' ', '.', ' '],
-        vec!['.', ' ', '.'],
+        '-', '^', '-',
+        ' ', '.', ' ',
+        '.', ' ', '.',
     ];
+    let ground = Sprite::new(ground, 3);
 
     let mut stage = Stage::new(cols);
 
@@ -34,7 +37,8 @@ fn main() {
         stage.add_padding(rows - stage.size.height);
     }
 
-    let player = vec![vec!['O']];
+    let player = Sprite::new(vec!['O'], 1);
+
     let game = Game::new(player, color::Fg(color::Yellow), stage);
 
     Runner::run(game, &mut stdout);

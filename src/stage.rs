@@ -1,17 +1,13 @@
 use std::{collections::VecDeque, io::Write};
 
-use termion::color::{self, Color, Fg};
+use termion::color::{Color, Fg};
 
-use crate::{
-    object::RetObj,
-    sprite::{self, Sprite},
-    Pos, Size,
-};
+use crate::{object::Obj, sprite::Sprite, Pos, Size};
 
 pub struct Stage {
     pub size: Size,
     pub layers: Vec<Layer>,
-    objs: Vec<RetObj>,
+    objs: Vec<Obj>,
     hitmap: VecDeque<u16>,
 }
 
@@ -29,23 +25,17 @@ impl Stage {
         self.hitmap.front()
     }
 
-    fn push<C: Color>(&mut self, layer: Layer, fg: Fg<C>) {
+    fn push<C: Color>(&mut self, layer: Layer, color: Fg<C>) {
         let sprite = layer.as_sprite();
         let pos = Pos {
             col: 1,
             row: self.size.height + 1,
         };
-        let size = Size {
-            width: sprite[0].len() as u16,
-            height: sprite.len() as u16,
-        };
 
-        let obj = RetObj {
-            size,
+        let obj = Obj {
             pos,
             sprite,
-            bg: color::Reset.bg_str().to_string(),
-            fg: fg.to_string(),
+            color: color.to_string(),
         };
 
         self.objs.push(obj);
@@ -60,7 +50,7 @@ impl Stage {
         fg: Fg<C>,
         gap: usize,
         barrier: bool,
-        shift: usize,
+        shift: u16,
     ) {
         let layer = Layer::new(self.size.width, sprite, gap, barrier, shift);
         self.push(layer, fg);
@@ -79,7 +69,7 @@ impl Stage {
         self.hitmap.clear();
         for (i, layer) in self.layers.iter().enumerate() {
             if layer.barrier {
-                let height = self.objs[i].size.height;
+                let height = self.objs[i].sprite.size().1;
                 let row = self.objs[i].pos.row;
                 for n in row..(row + height as u16) {
                     self.hitmap.push_back(n);
@@ -103,28 +93,24 @@ impl Stage {
 pub struct Layer {
     pub size: Size,
     pub sprite: Sprite,
-    pub sprite_width: usize,
     pub barrier: bool,
-    pub shift: usize,
-    pub offset: usize,
+    pub shift: u16,
+    pub offset: u16,
 }
 
 impl Layer {
-    pub fn new(width: u16, mut sprite: Sprite, gap: usize, barrier: bool, shift: usize) -> Layer {
+    pub fn new(width: u16, mut sprite: Sprite, gap: usize, barrier: bool, shift: u16) -> Layer {
         // format sprite
-        sprite::to_ret(&mut sprite);
-        sprite::stretch(&mut sprite, gap, ' ');
+        sprite.stretch(gap, ' ');
 
-        let sprite_width = sprite[0].len();
         let offset = 0;
         let size = Size {
             width,
-            height: sprite.len() as u16,
+            height: sprite.size().1,
         };
         Layer {
             size,
             sprite,
-            sprite_width,
             barrier,
             offset,
             shift,
@@ -136,23 +122,22 @@ impl Layer {
     }
 
     pub fn shift(&mut self) {
-        self.offset = (self.offset + self.shift) % self.sprite_width;
+        self.offset = (self.offset + self.shift) % self.sprite.size().0;
     }
 
     fn as_sprite(&self) -> Sprite {
-        let width = self.size.width as usize;
-        let height = self.size.height as usize;
+        let width = self.size.width;
+        let (sp_width, sp_height) = self.sprite.size();
+        let mut ascii_matrix = Vec::with_capacity((width * sp_height) as usize);
 
-        let mut ascii_matrix = vec![Vec::with_capacity(width); height];
-
-        for j in (self.offset)..(self.offset + width) {
-            let j = j % self.sprite_width;
-            ascii_matrix
-                .iter_mut()
-                .enumerate()
-                .for_each(|(i, x)| x.push(self.sprite[i][j]))
+        for i in 0..sp_height {
+            for j in (self.offset)..(self.offset + width) {
+                let j = j % sp_width;
+                let c = self.sprite.get(i, j).expect("Sprite element not found!");
+                ascii_matrix.push(*c);
+            }
         }
 
-        ascii_matrix
+        Sprite::new(ascii_matrix, self.size.width)
     }
 }

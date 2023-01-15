@@ -1,5 +1,5 @@
 use std::{collections::VecDeque, io::Write};
-use termion::color::{Bg, Color, Fg, Reset};
+use termion::color::{Color, Fg};
 
 use crate::{object::Obj, sprite::Sprite, Pos};
 
@@ -11,12 +11,12 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new<C: Color>(sprite: Sprite, fg: Fg<C>, pos: Pos) -> Player {
+    pub fn new<C: Color>(sprite: Sprite, color: Fg<C>, pos: Pos) -> Player {
         Player {
             score: 0,
             state: PlayerState::Running,
             moves: VecDeque::new(),
-            obj: Obj::new(pos, sprite, Bg(Reset), fg),
+            obj: Obj::new(pos, sprite, color),
         }
     }
 

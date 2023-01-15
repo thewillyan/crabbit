@@ -39,7 +39,7 @@ impl Game {
         stage.fill_hitmap();
 
         let floor = *stage.floor().expect("Empty stage!");
-        let player_height = player_sprite.len() as u16;
+        let (_, player_height) = player_sprite.size();
         let pos = Pos {
             col: 8,
             row: floor - player_height,

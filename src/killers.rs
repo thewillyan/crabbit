@@ -1,9 +1,9 @@
 use std::{collections::VecDeque, io::Write};
 
 use rand::{distributions::Bernoulli, prelude::Distribution};
-use termion::color::{Bg, Fg, Red, Reset};
+use termion::color::{Fg, Red};
 
-use crate::{object::RetObj, Pos};
+use crate::{object::Obj, Pos, sprite::Sprite};
 
 pub trait Hitmap {
     fn hits(&self, pos: &Pos) -> bool;
@@ -16,7 +16,7 @@ pub struct Walls {
     pub gap: u8,
     pub speed: u16,
     queue: VecDeque<Wall>,
-    objs: VecDeque<RetObj>,
+    objs: VecDeque<Obj>,
     wall_prob: Bernoulli,
 }
 
@@ -93,7 +93,8 @@ impl Hitmap for Walls {
     fn hits(&self, pos: &Pos) -> bool {
         for obj in &self.objs {
             let col = obj.pos.col + (obj.pos.col % self.speed);
-            let row_range = obj.pos.row..(obj.pos.row + obj.size.height);
+            let (_, obj_height) = obj.sprite.size();
+            let row_range = obj.pos.row..(obj.pos.row + obj_height);
 
             if col > pos.col {
                 return false;
@@ -115,7 +116,7 @@ enum Wall {
 }
 
 impl Wall {
-    pub fn to_obj(&self, sprite_char: char, mut pos: Pos) -> Option<RetObj> {
+    pub fn to_obj(&self, sprite_char: char, mut pos: Pos) -> Option<Obj> {
         let h = match self {
             Self::Big => 2,
             Self::Small => 1,
@@ -123,8 +124,9 @@ impl Wall {
         };
         pos.row = pos.row.checked_sub(h).unwrap_or(1);
 
-        let sprite = vec![vec![sprite_char]; h as usize];
-        let obj = RetObj::new(pos, sprite, Bg(Reset), Fg(Red));
+        let ascii_matrix = vec![sprite_char; h as usize];
+        let sprite = Sprite::new(ascii_matrix, 1);
+        let obj = Obj::new(pos, sprite, Fg(Red));
         Some(obj)
     }
 }
