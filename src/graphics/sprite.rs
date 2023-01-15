@@ -1,5 +1,5 @@
 use crate::Size;
-use std::slice::Chunks;
+use std::{slice::Chunks, fs::File, io::{prelude::*, BufReader}};
 
 pub struct Sprite {
     size: Size,
@@ -7,6 +7,7 @@ pub struct Sprite {
 }
 
 impl Sprite {
+    /// return a new sprite with the given width and charaters
     pub fn new(chars: Vec<char>, width: u16) -> Sprite {
         let n = chars.len() as u16;
 
@@ -17,6 +18,28 @@ impl Sprite {
         let height = n / width;
         let size = Size { width, height };
         Sprite { size, chars }
+    }
+
+    /// return a sprite extracting its charaters from a text file
+    pub fn from_file(fpath: &str) -> Sprite {
+        let file = File::open(fpath).expect("Failed to read the sprite file!");
+        let reader = BufReader::new(file);
+        let mut ascii_matrix = Vec::new();
+        let mut width = 0;
+
+        let lines: Vec<_> = reader.lines().map(|line| {
+            let line = line.expect("Failed to read file line!");
+            width = width.max(line.len());
+            line
+        }).collect();
+
+        lines.into_iter().for_each(|mut line| {
+            let padding = " ".repeat(width - line.len());
+            line.push_str(&padding);
+            ascii_matrix.extend(line.chars());
+        });
+
+        Self::new(ascii_matrix, width as u16)
     }
 
     /// returns the sprite size as a tuple (width, height)
