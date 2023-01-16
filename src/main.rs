@@ -1,6 +1,6 @@
 use std::io;
 use termion::{color, raw::IntoRawMode};
-use termjumper::{runner::Runner, components::stage::Stage, Game, graphics::sprite::Sprite};
+use termjumper::{components::Stage, graphics::Sprite, runner::Runner, Game};
 
 fn main() {
     let mut stdout = io::stdout().into_raw_mode().unwrap();

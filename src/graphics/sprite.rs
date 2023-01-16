@@ -60,7 +60,7 @@ impl Sprite {
     }
 
     /// update the visual representation of the sprite
-    pub fn update(&mut self, ascii_matrix: Vec<char>) {
+    pub fn set_ascii(&mut self, ascii_matrix: Vec<char>) {
         if ascii_matrix.len() != self.chars.len() {
             panic!("Failed to update sprite: new ascii matrix has different size.");
         }

@@ -1,10 +1,10 @@
-use std::{collections::VecDeque, io::Write};
-use termion::color::{Color, Fg};
-
 use crate::{
-    graphics::{object::Obj, sprite::Sprite},
+    components::Comp,
+    graphics::{Obj, Render, Sprite},
     Pos,
 };
+use std::{collections::VecDeque, io::Write};
+use termion::color::{Color, Fg};
 
 pub enum Move {
     Up(u16),
@@ -71,8 +71,20 @@ impl Player {
     pub fn kill(&mut self) {
         self.state = PlayerState::Killed;
     }
+}
 
-    pub fn mv(&mut self) {
+impl Render for Player {
+    fn render<O: Write>(&self, out: &mut O) {
+        self.obj.render(out);
+    }
+
+    fn erase<O: Write>(&self, out: &mut O) {
+        self.obj.render(out);
+    }
+}
+
+impl Comp for Player {
+    fn update(&mut self) {
         if let Some(mv) = self.moves.pop_front() {
             match mv {
                 Move::Up(amount) if self.obj.pos.row > amount => self.obj.pos.row -= amount,
@@ -86,11 +98,7 @@ impl Player {
         }
     }
 
-    pub fn render<O: Write>(&self, out: &mut O) {
-        self.obj.render(out);
-    }
-
-    pub fn reset(&mut self) {
+    fn reset(&mut self) {
         let (col, row) = self.default_pos;
         self.obj.pos.col = col;
         self.obj.pos.row = row;

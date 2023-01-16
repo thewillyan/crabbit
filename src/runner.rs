@@ -6,7 +6,10 @@ use std::{
 };
 use termion::{clear, cursor, event::Key, input::TermRead};
 
-use crate::{components::player::PlayerState, enemies::Hitmap, Game};
+use crate::{
+    components::{enemies::Hitmap, player::PlayerState},
+    Game,
+};
 
 pub enum Act {
     PlayerJump,
@@ -66,4 +69,3 @@ impl Runner {
         rx
     }
 }
-

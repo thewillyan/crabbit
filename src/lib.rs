@@ -5,25 +5,11 @@ use termion::{
 };
 
 pub mod components;
-pub mod enemies;
 pub mod graphics;
 pub mod runner;
 
-use components::{player::Player, stage::Stage};
-use enemies::walls::Walls;
-use graphics::sprite::Sprite;
-
-#[derive(Clone)]
-pub struct Pos {
-    pub col: u16,
-    pub row: u16,
-}
-
-#[derive(Clone)]
-pub struct Size {
-    pub width: u16,
-    pub height: u16,
-}
+use components::{enemies::Walls, player::Player, Stage, Comp};
+use graphics::{Sprite, Pos, Size, Render};
 
 pub struct Game {
     player: Player,
@@ -52,10 +38,10 @@ impl Game {
     }
 
     pub fn update(&mut self) {
-        self.stage.shift();
+        self.stage.update();
         self.walls.update();
         self.player.score += 1;
-        self.player.mv();
+        self.player.update();
     }
 
     pub fn render<O: Write>(&self, out: &mut O) {

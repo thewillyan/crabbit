@@ -1,4 +1,7 @@
-use crate::{graphics::sprite::Sprite, Pos};
+use crate::{
+    graphics::{Render, Sprite},
+    Pos,
+};
 use std::io::Write;
 use termion::{
     color::{Bg, Color, Fg, Reset},
@@ -19,8 +22,10 @@ impl Obj {
             color: color.to_string(),
         }
     }
+}
 
-    pub fn render<O: Write>(&self, out: &mut O) {
+impl Render for Obj {
+    fn render<O: Write>(&self, out: &mut O) {
         let mut row = self.pos.row;
         for line in self.sprite.rows() {
             let line: String = line.iter().collect();
@@ -38,7 +43,7 @@ impl Obj {
         }
     }
 
-    pub fn erase<O: Write>(&self, out: &mut O) {
+    fn erase<O: Write>(&self, out: &mut O) {
         let row = self.pos.row;
         let (width, height) = self.sprite.size();
         let overwrite = " ".repeat(width as usize);

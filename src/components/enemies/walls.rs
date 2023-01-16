@@ -1,13 +1,33 @@
-use std::{collections::VecDeque, io::Write};
-
-use rand::{distributions::Bernoulli, prelude::Distribution};
-use termion::color::{Fg, Red};
-
 use crate::{
-    enemies::Hitmap,
-    graphics::{object::Obj, sprite::Sprite},
+    components::{enemies::Hitmap, Comp},
+    graphics::{Obj, Render, Sprite},
     Pos,
 };
+use rand::{distributions::Bernoulli, prelude::Distribution};
+use std::{collections::VecDeque, io::Write};
+use termion::color::{Fg, Red};
+
+enum Wall {
+    Big,
+    Small,
+    Void,
+}
+
+impl Wall {
+    pub fn to_obj(&self, sprite_char: char, mut pos: Pos) -> Option<Obj> {
+        let h = match self {
+            Self::Big => 2,
+            Self::Small => 1,
+            Self::Void => return None,
+        };
+        pos.row = pos.row.checked_sub(h).unwrap_or(1);
+
+        let ascii_matrix = vec![sprite_char; h as usize];
+        let sprite = Sprite::new(ascii_matrix, 1);
+        let obj = Obj::new(pos, sprite, Fg(Red));
+        Some(obj)
+    }
+}
 
 // each wall is, at most, 2 rows high.
 pub struct Walls {
@@ -35,7 +55,7 @@ impl Walls {
     }
 
     // generate a chunk of walls (4 walls)
-    pub fn gen_walls(&mut self) {
+    fn gen_walls(&mut self) {
         for i in 0..4 {
             let has_wall = self.wall_prob.sample(&mut rand::thread_rng());
             if has_wall && (i == 0 || i == 3) {
@@ -54,21 +74,37 @@ impl Walls {
         }
     }
 
-    pub fn shift_objs(&mut self) {
+    fn shift_objs(&mut self) {
         self.objs.iter_mut().for_each(|obj| {
             obj.pos.col = obj.pos.col.checked_sub(self.speed).unwrap_or(0);
         });
     }
 
-    pub fn clean_objs(&mut self) {
+    fn clean_objs(&mut self) {
         if let Some(obj) = self.objs.front() {
             if obj.pos.col == 0 {
                 self.objs.pop_front();
             }
         }
     }
+}
 
-    pub fn update(&mut self) {
+impl Render for Walls {
+    fn render<O: Write>(&self, out: &mut O) {
+        for obj in &self.objs {
+            obj.render(out);
+        }
+    }
+
+    fn erase<O: Write>(&self, out: &mut O) {
+        for obj in &self.objs {
+            obj.erase(out);
+        }
+    }
+}
+
+impl Comp for Walls {
+    fn update(&mut self) {
         self.shift_objs();
         self.clean_objs();
 
@@ -82,13 +118,7 @@ impl Walls {
         }
     }
 
-    pub fn render<O: Write>(&self, out: &mut O) {
-        for obj in &self.objs {
-            obj.render(out);
-        }
-    }
-
-    pub fn reset(&mut self) {
+    fn reset(&mut self) {
         self.objs.clear();
     }
 }
@@ -109,28 +139,5 @@ impl Hitmap for Walls {
             }
         }
         false
-    }
-}
-
-#[derive(Clone)]
-enum Wall {
-    Big,
-    Small,
-    Void,
-}
-
-impl Wall {
-    pub fn to_obj(&self, sprite_char: char, mut pos: Pos) -> Option<Obj> {
-        let h = match self {
-            Self::Big => 2,
-            Self::Small => 1,
-            Self::Void => return None,
-        };
-        pos.row = pos.row.checked_sub(h).unwrap_or(1);
-
-        let ascii_matrix = vec![sprite_char; h as usize];
-        let sprite = Sprite::new(ascii_matrix, 1);
-        let obj = Obj::new(pos, sprite, Fg(Red));
-        Some(obj)
     }
 }
