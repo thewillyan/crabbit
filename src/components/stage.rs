@@ -91,6 +91,10 @@ impl Stage {
             obj.render(out);
         }
     }
+
+    pub fn reset(&mut self) {
+        self.layers.iter_mut().for_each(|layer| layer.reset());
+    }
 }
 
 pub struct Layer {
@@ -147,5 +151,9 @@ impl Layer {
     pub fn as_sprite(&self) -> Sprite {
         let ascii_matrix = self.ascii_matrix();
         Sprite::new(ascii_matrix, self.size.width)
+    }
+
+    pub fn reset(&mut self) {
+        self.offset = 0;
     }
 }

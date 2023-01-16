@@ -8,6 +8,12 @@ use termion::{clear, cursor, event::Key, input::TermRead};
 
 use crate::{components::player::PlayerState, enemies::Hitmap, Game};
 
+pub enum Act {
+    PlayerJump,
+    Reset,
+    Quit,
+}
+
 pub struct Runner;
 
 impl Runner {
@@ -23,6 +29,7 @@ impl Runner {
             if let Ok(act) = act_stream.try_recv() {
                 match (act, &game.player.state) {
                     (Act::Quit, _) => break,
+                    (Act::Reset, _) => game.reset(),
                     (Act::PlayerJump, PlayerState::Running) => game.player.jump(3),
                     _ => (),
                 }
@@ -34,13 +41,12 @@ impl Runner {
             let has_died = game.walls.hits(player_pos);
 
             if has_died {
-                game.player.kill();
-                break;
+                game.reset();
             }
 
             thread::sleep(Duration::from_millis(70));
         }
-        write!(out, "{}{}\r\n", cursor::Show, clear::All).unwrap();
+        write!(out, "{}{}\r", cursor::Show, clear::All).unwrap();
     }
 
     pub fn act_input() -> Receiver<Act> {
@@ -52,6 +58,7 @@ impl Runner {
                 match c.unwrap() {
                     Key::Char(' ') => tx.send(Act::PlayerJump).unwrap(),
                     Key::Char('q') | Key::Char('Q') => tx.send(Act::Quit).unwrap(),
+                    Key::Char('r') | Key::Char('R') => tx.send(Act::Reset).unwrap(),
                     _ => (),
                 }
             }
@@ -60,7 +67,3 @@ impl Runner {
     }
 }
 
-pub enum Act {
-    PlayerJump,
-    Quit,
-}

@@ -6,20 +6,40 @@ use crate::{
     Pos,
 };
 
+pub enum Move {
+    Up(u16),
+    Down(u16),
+    Stop,
+}
+
+pub enum PlayerState {
+    Jumping,
+    Running,
+    Killed,
+}
+
 pub struct Player {
     pub score: u32,
     pub state: PlayerState,
     pub obj: Obj,
+    default_pos: (u16, u16),
     moves: VecDeque<Move>,
 }
 
 impl Player {
-    pub fn new<C: Color>(sprite: Sprite, color: Fg<C>, pos: Pos) -> Player {
+    pub fn new<C: Color>(sprite: Sprite, color: Fg<C>, spawn: Pos) -> Player {
+        let (_, sp_height) = sprite.size();
+        let pos = Pos {
+            col: spawn.col,
+            row: spawn.row - sp_height,
+        };
+        let default_pos = (pos.col, pos.row);
         Player {
             score: 0,
             state: PlayerState::Running,
+            obj: Obj::new(pos.clone(), sprite, color),
+            default_pos,
             moves: VecDeque::new(),
-            obj: Obj::new(pos, sprite, color),
         }
     }
 
@@ -69,16 +89,13 @@ impl Player {
     pub fn render<O: Write>(&self, out: &mut O) {
         self.obj.render(out);
     }
-}
 
-pub enum Move {
-    Up(u16),
-    Down(u16),
-    Stop,
-}
-
-pub enum PlayerState {
-    Jumping,
-    Running,
-    Killed,
+    pub fn reset(&mut self) {
+        let (col, row) = self.default_pos;
+        self.obj.pos.col = col;
+        self.obj.pos.row = row;
+        self.moves.clear();
+        self.state = PlayerState::Running;
+        self.score = 0;
+    }
 }

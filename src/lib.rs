@@ -4,14 +4,14 @@ use termion::{
     cursor,
 };
 
-pub mod enemies;
 pub mod components;
+pub mod enemies;
 pub mod graphics;
 pub mod runner;
 
 use components::{player::Player, stage::Stage};
-use graphics::sprite::Sprite;
 use enemies::walls::Walls;
+use graphics::sprite::Sprite;
 
 #[derive(Clone)]
 pub struct Pos {
@@ -36,17 +36,13 @@ impl Game {
         stage.fill_hitmap();
 
         let floor = *stage.floor().expect("Empty stage!");
-        let (_, player_height) = player_sprite.size();
-        let pos = Pos {
-            col: 8,
-            row: floor - player_height,
-        };
-        let player = Player::new(player_sprite, player_fg, pos);
-        let walls_pos = Pos {
+        let player_spawn = Pos { col: 8, row: floor };
+        let player = Player::new(player_sprite, player_fg, player_spawn);
+        let walls_spawn = Pos {
             col: stage.size.width,
             row: floor,
         };
-        let walls = Walls::new(walls_pos, '|', 4, 2);
+        let walls = Walls::new(walls_spawn, '|', 4, 2);
 
         Game {
             player,
@@ -75,5 +71,11 @@ impl Game {
         self.walls.render(out);
         self.player.render(out);
         write!(out, "{}{}", cursor::Goto(corner, 1), score).expect("Error while rendering score!");
+    }
+
+    pub fn reset(&mut self) {
+        self.player.reset();
+        self.stage.reset();
+        self.walls.reset();
     }
 }

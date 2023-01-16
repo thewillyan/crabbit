@@ -87,6 +87,10 @@ impl Walls {
             obj.render(out);
         }
     }
+
+    pub fn reset(&mut self) {
+        self.objs.clear();
+    }
 }
 
 impl Hitmap for Walls {
