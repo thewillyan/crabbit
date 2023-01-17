@@ -1,6 +1,6 @@
+use crabbit::{components::Stage, graphics::Sprite, runner::Runner, Game};
 use std::io;
 use termion::{color, raw::IntoRawMode};
-use crabbit::{components::Stage, graphics::Sprite, runner::Runner, Game};
 
 fn main() {
     let mut stdout = io::stdout().into_raw_mode().unwrap();
@@ -26,5 +26,5 @@ fn main() {
 
     let game = Game::new(player, color::Fg(color::Yellow), stage);
 
-    Runner::run(game, &mut stdout);
+    Runner::new(game).run(&mut stdout);
 }

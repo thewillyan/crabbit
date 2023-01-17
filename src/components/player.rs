@@ -58,13 +58,15 @@ impl Player {
     }
 
     pub fn jump(&mut self, height: u16) {
-        self.state = PlayerState::Jumping;
-        for _ in 0..height {
-            self.up(1);
-        }
-        self.stop();
-        for _ in 0..height {
-            self.down(1);
+        if let PlayerState::Running = self.state {
+            self.state = PlayerState::Jumping;
+            for _ in 0..height {
+                self.up(1);
+            }
+            self.stop();
+            for _ in 0..height {
+                self.down(1);
+            }
         }
     }
 
