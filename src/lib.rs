@@ -1,24 +1,22 @@
 use std::io::Write;
-use termion::{
-    color::{Color, Fg},
-    cursor,
-};
+use termion::color::{Color, Fg};
 
 pub mod components;
 pub mod graphics;
 pub mod runner;
 
-use components::{enemies::Walls, player::Player, Stage, Comp};
+use components::{enemies::Walls, player::Player, Stage, DynComp, Hud};
 use graphics::{Sprite, Pos, Size, Render};
 
 pub struct Game {
     player: Player,
     stage: Stage,
     walls: Walls,
+    hud: Hud
 }
 
 impl Game {
-    pub fn new<C: Color>(player_sprite: Sprite, player_fg: Fg<C>, mut stage: Stage) -> Game {
+    pub fn new<C: Color>(player_sprite: Sprite, player_fg: &Fg<C>, mut stage: Stage) -> Game {
         stage.fill_hitmap();
 
         let floor = *stage.floor().expect("Empty stage!");
@@ -29,39 +27,34 @@ impl Game {
             row: floor,
         };
         let walls = Walls::new(walls_spawn, '|', 4, 2);
+        let hud = Hud::new(stage.size.clone());
 
         Game {
             player,
             walls,
             stage,
+            hud
         }
     }
 
     pub fn update(&mut self) {
         self.stage.update();
         self.walls.update();
-        self.player.score += 1;
         self.player.update();
+        self.hud.update();
     }
 
     pub fn render<O: Write>(&self, out: &mut O) {
-        let score = format!("Score: {:0>10}", self.player.score);
-        let score_width = score.len() as u16;
-        let corner = if self.stage.size.width > score_width {
-            self.stage.size.width - score_width
-        } else {
-            1
-        };
-
         self.stage.render(out);
         self.walls.render(out);
         self.player.render(out);
-        write!(out, "{}{}", cursor::Goto(corner, 1), score).expect("Error while rendering score!");
+        self.hud.render(out);
     }
 
     pub fn reset(&mut self) {
-        self.player.reset();
         self.stage.reset();
         self.walls.reset();
+        self.player.reset();
+        self.hud.reset();
     }
 }

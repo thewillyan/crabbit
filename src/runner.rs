@@ -67,7 +67,7 @@ impl Runner {
             self.game.update();
 
             if self.delay > MIN_DELAY {
-                self.delay = INI_DELAY - (self.game.player.score / DELAY_STEP) as u64;
+                self.delay = INI_DELAY - (self.game.hud.score.current / DELAY_STEP) as u64;
             }
             thread::sleep(Duration::from_millis(self.delay));
         }

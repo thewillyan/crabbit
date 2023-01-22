@@ -1,5 +1,5 @@
 use crate::{
-    components::Comp,
+    components::DynComp,
     graphics::{object::Obj, sprite::Sprite, Render},
     Pos, Size,
 };
@@ -95,7 +95,7 @@ impl Render for Stage {
     }
 }
 
-impl Comp for Stage {
+impl DynComp for Stage {
     fn update(&mut self) {
         self.layers.iter_mut().enumerate().for_each(|(i, layer)| {
             if !layer.is_static() {

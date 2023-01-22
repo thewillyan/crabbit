@@ -24,7 +24,7 @@ fn main() {
 
     let player = Sprite::new(vec!['O'], 1);
 
-    let game = Game::new(player, color::Fg(color::Yellow), stage);
+    let game = Game::new(player, &color::Fg(color::Yellow), stage);
 
     Runner::new(game).run(&mut stdout);
 }

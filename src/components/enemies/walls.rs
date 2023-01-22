@@ -1,5 +1,5 @@
 use crate::{
-    components::{enemies::Hitmap, Comp},
+    components::{enemies::Hitmap, DynComp},
     graphics::{Obj, Render, Sprite},
     Pos,
 };
@@ -24,7 +24,7 @@ impl Wall {
 
         let ascii_matrix = vec![sprite_char; h as usize];
         let sprite = Sprite::new(ascii_matrix, 1);
-        let obj = Obj::new(pos, sprite, Fg(Red));
+        let obj = Obj::new(pos, sprite, &Fg(Red));
         Some(obj)
     }
 }
@@ -103,7 +103,7 @@ impl Render for Walls {
     }
 }
 
-impl Comp for Walls {
+impl DynComp for Walls {
     fn update(&mut self) {
         self.shift_objs();
         self.clean_objs();

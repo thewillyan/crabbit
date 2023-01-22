@@ -15,7 +15,7 @@ pub struct Obj {
 }
 
 impl Obj {
-    pub fn new<C: Color>(pos: Pos, sprite: Sprite, color: Fg<C>) -> Obj {
+    pub fn new<C: Color>(pos: Pos, sprite: Sprite, color: &Fg<C>) -> Obj {
         Obj {
             pos,
             sprite,
