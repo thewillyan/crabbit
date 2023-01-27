@@ -26,7 +26,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new<C: Color>(sprite: Sprite, color: &Fg<C>, spawn: Pos) -> Player {
+    pub fn new<C: Color>(sprite: Sprite, color: C, spawn: Pos) -> Player {
         let (_, sp_height) = sprite.size();
         let pos = Pos {
             col: spawn.col,
@@ -35,7 +35,7 @@ impl Player {
         let default_pos = (pos.col, pos.row);
         Player {
             state: PlayerState::Running,
-            obj: Obj::new(pos.clone(), sprite, color),
+            obj: Obj::new(pos.clone(), sprite, &Fg(color)),
             default_pos,
             moves: VecDeque::new(),
         }

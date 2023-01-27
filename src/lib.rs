@@ -1,5 +1,5 @@
 use std::io::Write;
-use termion::color::{Color, Fg};
+use termion::color::Color;
 
 pub mod components;
 pub mod graphics;
@@ -16,7 +16,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new<C: Color>(player_sprite: Sprite, player_fg: &Fg<C>, mut stage: Stage) -> Game {
+    pub fn new<C: Color>(player_sprite: Sprite, player_fg: C, mut stage: Stage) -> Game {
         stage.fill_hitmap();
 
         let floor = *stage.floor().expect("Empty stage!");

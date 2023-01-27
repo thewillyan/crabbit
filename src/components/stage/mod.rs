@@ -31,35 +31,29 @@ impl Stage {
         self.hitmap.front()
     }
 
-    fn push<C: Color>(&mut self, layer: Layer, color: Fg<C>) {
+    fn push<C: Color>(&mut self, layer: Layer, color: C) {
         let sprite = layer.as_sprite();
         let pos = Pos {
             col: 1,
             row: self.size.height + 1,
         };
-
-        let obj = Obj {
-            pos,
-            sprite,
-            color: color.to_string(),
-        };
-
-        self.objs.push(obj);
+        let obj = Obj::new(pos, sprite, &Fg(color));
 
         self.size.height += layer.size.height;
+        self.objs.push(obj);
         self.layers.push(layer);
     }
 
     pub fn add_layer<C: Color>(
         &mut self,
         sprite: Sprite,
-        fg: Fg<C>,
+        color: C,
         gap: usize,
         barrier: bool,
         shift: u16,
     ) {
         let layer = Layer::new(self.size.width, sprite, gap, barrier, shift);
-        self.push(layer, fg);
+        self.push(layer, color);
     }
 
     pub fn fill_hitmap(&mut self) {

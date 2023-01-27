@@ -13,23 +13,22 @@ fn main() {
 
     let mut stage = Stage::new(cols);
 
-    stage.add_layer(sky, color::Fg(color::White), 40, false, 1);
-    stage.add_layer(mountains, color::Fg(color::LightBlack), 4, false, 1);
-    stage.add_layer(grass, color::Fg(color::Green), 0, true, 2);
-    stage.add_layer(ground, color::Fg(color::LightWhite), 4, false, 2);
+    stage.add_layer(sky, color::White, 40, false, 1);
+    stage.add_layer(mountains, color::LightBlack, 4, false, 1);
+    stage.add_layer(grass, color::Green, 0, true, 2);
+    stage.add_layer(ground, color::LightWhite, 4, false, 2);
 
     if rows > stage.size.height {
         stage.add_padding(rows - stage.size.height);
     }
 
     let player = Sprite::new(vec!['O'], 1);
-
-    let game = Game::new(player, &color::Fg(color::Yellow), stage);
+    let game = Game::new(player, color::Yellow, stage);
 
     Runner::new(
         game,
         "Welcome to Crabbit! Press any key to continue.",
-        color::Magenta,
+        color::Blue,
     )
     .run(&mut stdout);
 }
