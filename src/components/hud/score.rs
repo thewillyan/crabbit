@@ -54,12 +54,6 @@ impl Score {
     pub fn best_ascii_matrix(&self) -> Vec<char> {
         self.best_as_string().chars().collect()
     }
-
-    pub fn sprite_width() -> u16 {
-        let max_label = CURR_LABEL.len().max(REC_LABEL.len()) as u16;
-        // max label len + separator len + score len
-        max_label + 2 + 10
-    }
 }
 
 impl DynComp for Score {

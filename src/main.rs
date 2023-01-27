@@ -26,5 +26,10 @@ fn main() {
 
     let game = Game::new(player, &color::Fg(color::Yellow), stage);
 
-    Runner::new(game).run(&mut stdout);
+    Runner::new(
+        game,
+        "Welcome to Crabbit! Press any key to continue.",
+        color::Magenta,
+    )
+    .run(&mut stdout);
 }
