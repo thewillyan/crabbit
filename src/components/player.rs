@@ -1,9 +1,10 @@
+use std::{collections::VecDeque, io::Write};
+use termion::color::{Color, Fg};
+
 use crate::{
     components::DynComp,
     graphics::{Obj, Pos, Render, Sprite},
 };
-use std::{collections::VecDeque, io::Write};
-use termion::color::{Color, Fg};
 
 pub enum Move {
     Up(u16),

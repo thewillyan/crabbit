@@ -5,9 +5,12 @@ use crate::{
     graphics::{Obj, Pos, Render, Sprite},
 };
 
+// current score label
 const CURR_LABEL: &'static str = "Score";
+// record score label
 const REC_LABEL: &'static str = "Record";
 
+/// Tracks the user score.
 pub struct Score {
     pub current: u32,
     pub record: u32,
@@ -16,6 +19,7 @@ pub struct Score {
 }
 
 impl Score {
+    /// Returns a new instace of Score.
     pub fn new(mut pos: Pos) -> Score {
         let color = color::Fg(color::Reset);
         let str_score = "0".repeat(10);

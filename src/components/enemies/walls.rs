@@ -7,6 +7,7 @@ use crate::{
     graphics::{Obj, Pos, Render, Sprite},
 };
 
+/// Kinds of wall.
 enum Wall {
     Big,
     Small,
@@ -29,7 +30,7 @@ impl Wall {
     }
 }
 
-// each wall is, at most, 2 rows high.
+/// Obstacle walls.
 pub struct Walls {
     pub pos: Pos,
     pub sprite_char: char,
