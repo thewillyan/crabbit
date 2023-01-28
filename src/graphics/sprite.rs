@@ -1,4 +1,4 @@
-use crate::Size;
+use crate::graphics::Size;
 use std::{slice::Chunks, fs::File, io::{prelude::*, BufReader}};
 
 pub struct Sprite {

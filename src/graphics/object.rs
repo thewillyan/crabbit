@@ -1,12 +1,10 @@
-use crate::{
-    graphics::{Render, Sprite},
-    Pos,
-};
 use std::io::Write;
 use termion::{
     color::{Bg, Color, Fg, Reset},
     cursor,
 };
+
+use crate::graphics::{Pos, Render, Sprite};
 
 pub struct Obj {
     pub pos: Pos,

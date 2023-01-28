@@ -12,7 +12,11 @@ use termion::{
     input::TermRead,
 };
 
-use crate::{components::enemies::Hitmap, graphics::Render, Game};
+use crate::{
+    components::{enemies::Hitmap, DynComp},
+    graphics::Render,
+    Game,
+};
 
 // intial delay (milliseconds)
 const INI_DELAY: u64 = 60;

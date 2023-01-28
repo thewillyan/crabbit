@@ -1,4 +1,4 @@
-use crate::{graphics::sprite::Sprite, Size};
+use crate::graphics::{Sprite, Size};
 
 pub struct Layer {
     pub size: Size,

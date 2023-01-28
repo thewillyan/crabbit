@@ -1,11 +1,11 @@
-use crate::{
-    components::{enemies::Hitmap, DynComp},
-    graphics::{Obj, Render, Sprite},
-    Pos,
-};
 use rand::{distributions::Bernoulli, prelude::Distribution};
 use std::{collections::VecDeque, io::Write};
 use termion::color::{Fg, Red};
+
+use crate::{
+    components::{enemies::Hitmap, DynComp},
+    graphics::{Obj, Pos, Render, Sprite},
+};
 
 enum Wall {
     Big,

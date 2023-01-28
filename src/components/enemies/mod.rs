@@ -1,4 +1,4 @@
-use crate::Pos;
+use crate::graphics::Pos;
 
 pub mod walls;
 

@@ -1,7 +1,6 @@
 use crate::{
     components::DynComp,
-    graphics::{Obj, Render, Sprite},
-    Pos,
+    graphics::{Obj, Pos, Render, Sprite},
 };
 use std::{collections::VecDeque, io::Write};
 use termion::color::{Color, Fg};
