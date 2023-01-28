@@ -1,87 +1,75 @@
 use crate::{
     components::DynComp,
-    graphics::{object::Obj, sprite::Sprite, Pos, Size, Render},
+    graphics::{object::Obj, sprite::Sprite, Pos, Render, Size},
 };
-use std::{collections::VecDeque, io::Write};
 use termion::color::{Color, Fg};
 
 mod layer;
 
 use layer::Layer;
 
+/// A game stage (scenario).
 pub struct Stage {
     pub size: Size,
+    pub floor: u16,
     layers: Vec<Layer>,
     objs: Vec<Obj>,
-    hitmap: VecDeque<u16>,
+    layers_height: u16,
 }
 
 impl Stage {
-    pub fn new(width: u16) -> Stage {
+    /// Returns a new Stage instance.
+    pub fn new(width: u16, height: u16) -> Stage {
         Stage {
-            size: Size { width, height: 0 },
+            size: Size { width, height },
+            floor: 1,
             layers: Vec::new(),
             objs: Vec::new(),
-            hitmap: VecDeque::new(),
+            layers_height: 0,
         }
     }
 
-    pub fn floor(&self) -> Option<&u16> {
-        self.hitmap.front()
-    }
-
-    fn push<C: Color>(&mut self, layer: Layer, color: C) {
+    /// Push a new layer to the layer stack.
+    fn push<C: Color>(&mut self, layer: Layer, color: C, is_floor: bool) {
         let sprite = layer.as_sprite();
-        let pos = Pos {
-            col: 1,
-            row: self.size.height + 1,
-        };
+        let row = self.size.height
+            .checked_sub(layer.size.height + self.layers_height - 1)
+            .unwrap_or(1);
+
+        if is_floor {
+            self.floor = row;
+        }
+
+        let pos = Pos { col: 1, row };
         let obj = Obj::new(pos, sprite, &Fg(color));
 
-        self.size.height += layer.size.height;
+        self.layers_height += layer.size.height;
         self.objs.push(obj);
         self.layers.push(layer);
     }
 
+    /// Add a new layer to the stage.
     pub fn add_layer<C: Color>(
         &mut self,
         sprite: Sprite,
         color: C,
         gap: usize,
-        barrier: bool,
         shift: u16,
+        is_floor: bool,
     ) {
-        let layer = Layer::new(self.size.width, sprite, gap, barrier, shift);
-        self.push(layer, color);
-    }
-
-    pub fn fill_hitmap(&mut self) {
-        self.hitmap.clear();
-        for (i, layer) in self.layers.iter().enumerate() {
-            if layer.barrier {
-                let height = self.objs[i].sprite.size().1;
-                let row = self.objs[i].pos.row;
-                for n in row..(row + height as u16) {
-                    self.hitmap.push_back(n);
-                }
-            }
-        }
-    }
-
-    pub fn add_padding(&mut self, padding: u16) {
-        self.objs.iter_mut().for_each(|obj| obj.pos.row += padding);
-        self.fill_hitmap();
+        let layer = Layer::new(self.size.width, sprite, gap, shift);
+        self.push(layer, color, is_floor);
     }
 }
 
 impl Render for Stage {
-    fn render<O: Write>(&self, out: &mut O) {
+    fn render<O: std::io::Write>(&self, out: &mut O) {
         for obj in &self.objs {
             obj.render(out);
         }
     }
 
-    fn erase<O: Write>(&self, out: &mut O) {
+    fn erase<O: std::io::Write>(&self, out: &mut O) {
         for obj in &self.objs {
             obj.erase(out);
         }

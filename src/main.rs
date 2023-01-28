@@ -7,21 +7,17 @@ fn main() {
     let mut stdout = io::stdout().into_raw_mode().expect("Failed to get a new raw stdout handler");
     let (cols, rows) = termion::terminal_size().expect("Failed to get terminal size.");
 
-    let mut stage = Stage::new(cols);
+    let mut stage = Stage::new(cols, rows);
 
-    let sky = Sprite::from_file("./sprites/sky");
-    let mountains = Sprite::from_file("./sprites/mountains");
-    let grass = Sprite::from_file("./sprites/grass");
     let ground = Sprite::from_file("./sprites/ground");
+    let grass = Sprite::from_file("./sprites/grass");
+    let mountains = Sprite::from_file("./sprites/mountains");
+    let sky = Sprite::from_file("./sprites/sky");
 
-    stage.add_layer(sky, color::White, 40, false, 1);
-    stage.add_layer(mountains, color::LightBlack, 4, false, 1);
-    stage.add_layer(grass, color::Green, 0, true, 2);
-    stage.add_layer(ground, color::LightWhite, 4, false, 2);
-
-    if rows > stage.size.height {
-        stage.add_padding(rows - stage.size.height);
-    }
+    stage.add_layer(ground, color::LightWhite, 4, 2, false);
+    stage.add_layer(grass, color::Green, 0, 2, true);
+    stage.add_layer(mountains, color::LightBlack, 4, 1, false);
+    stage.add_layer(sky, color::White, 40, 1, false);
 
     let player = Sprite::new(vec!['O'], 1);
     let game = Game::new(player, color::Yellow, stage);

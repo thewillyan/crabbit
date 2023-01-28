@@ -1,4 +1,3 @@
-use std::io::Write;
 use termion::color::Color;
 
 use crate::{
@@ -14,15 +13,15 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new<C: Color>(player_sprite: Sprite, player_fg: C, mut stage: Stage) -> Game {
-        stage.fill_hitmap();
-
-        let floor = *stage.floor().expect("Empty stage!");
-        let player_spawn = Pos { col: 8, row: floor };
+    pub fn new<C: Color>(player_sprite: Sprite, player_fg: C, stage: Stage) -> Game {
+        let player_spawn = Pos {
+            col: 8,
+            row: stage.floor,
+        };
         let player = Player::new(player_sprite, player_fg, player_spawn);
         let walls_spawn = Pos {
             col: stage.size.width,
-            row: floor,
+            row: stage.floor,
         };
         let walls = Walls::new(walls_spawn, '|', 4, 2);
         let hud = Hud::new(stage.size.clone());
@@ -53,17 +52,16 @@ impl DynComp for Game {
 }
 
 impl Render for Game {
-    fn render<O: Write>(&self, out: &mut O) {
+    fn render<O: std::io::Write>(&self, out: &mut O) {
         self.stage.render(out);
         self.walls.render(out);
         self.player.render(out);
         self.hud.render(out);
     }
 
-    fn erase<O: Write>(&self, out: &mut O) {
+    fn erase<O: std::io::Write>(&self, out: &mut O) {
         self.stage.erase(out);
         self.walls.erase(out);
         self.player.erase(out);
-        self.hud.erase(out);
     }
 }

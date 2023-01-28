@@ -3,13 +3,12 @@ use crate::graphics::{Sprite, Size};
 pub struct Layer {
     pub size: Size,
     pub sprite: Sprite,
-    pub barrier: bool,
     pub shift: u16,
     pub offset: u16,
 }
 
 impl Layer {
-    pub fn new(width: u16, mut sprite: Sprite, gap: usize, barrier: bool, shift: u16) -> Layer {
+    pub fn new(width: u16, mut sprite: Sprite, gap: usize, shift: u16) -> Layer {
         // format sprite
         sprite.stretch(gap, ' ');
 
@@ -21,7 +20,6 @@ impl Layer {
         Layer {
             size,
             sprite,
-            barrier,
             offset,
             shift,
         }
