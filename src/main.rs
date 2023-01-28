@@ -1,23 +1,39 @@
 use std::io;
 use termion::{color, raw::IntoRawMode};
 
-use crabbit::{components::Stage, graphics::Sprite, Game, Runner};
+use crabbit::{
+    components::stage::{Layer, Stage},
+    graphics::Sprite,
+    Game, Runner,
+};
 
 fn main() {
-    let mut stdout = io::stdout().into_raw_mode().expect("Failed to get a new raw stdout handler");
+    let mut stdout = io::stdout()
+        .into_raw_mode()
+        .expect("Failed to get a new raw stdout handler");
     let (cols, rows) = termion::terminal_size().expect("Failed to get terminal size.");
+
+    let ground = Layer::new(cols, Sprite::from_file("./sprites/ground"))
+        .gap(4)
+        .shift(2)
+        .build();
+    let grass = Layer::new(cols, Sprite::from_file("./sprites/grass"))
+        .shift(2)
+        .build();
+    let mountains = Layer::new(cols, Sprite::from_file("./sprites/mountains"))
+        .gap(4)
+        .build();
+    let sky = Layer::new(cols, Sprite::from_file("./sprites/sky"))
+        .gap(40)
+        .build();
 
     let mut stage = Stage::new(cols, rows);
 
-    let ground = Sprite::from_file("./sprites/ground");
-    let grass = Sprite::from_file("./sprites/grass");
-    let mountains = Sprite::from_file("./sprites/mountains");
-    let sky = Sprite::from_file("./sprites/sky");
-
-    stage.add_layer(ground, color::LightWhite, 4, 2, false);
-    stage.add_layer(grass, color::Green, 0, 2, true);
-    stage.add_layer(mountains, color::LightBlack, 4, 1, false);
-    stage.add_layer(sky, color::White, 40, 1, false);
+    stage.push_layer(ground, color::LightWhite);
+    stage.push_layer(grass, color::Green);
+    stage.set_floor();
+    stage.push_layer(mountains, color::LightBlack);
+    stage.push_layer(sky, color::White);
 
     let player = Sprite::new(vec!['O'], 1);
     let game = Game::new(player, color::Yellow, stage);
