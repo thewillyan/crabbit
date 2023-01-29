@@ -18,25 +18,23 @@ pub enum PlayerState {
     Killed,
 }
 
+/// A player of `Game`.
 pub struct Player {
     pub state: PlayerState,
     pub obj: Obj,
-    default_pos: (u16, u16),
+    default_pos: Pos,
     moves: VecDeque<Move>,
 }
 
 impl Player {
-    pub fn new<C: Color>(sprite: Sprite, color: C, spawn: Pos) -> Player {
-        let (_, sp_height) = sprite.size();
-        let pos = Pos {
-            col: spawn.col,
-            row: spawn.row - sp_height,
-        };
-        let default_pos = (pos.col, pos.row);
+    /// Creates a new instance of `Player`.
+    pub fn new<C: Color>(icon: char, color: C, floor: u16) -> Player {
+        let sprite = Sprite::new(vec![icon], 1);
+        let pos = Pos { col: 8, row: floor - 1 };
         Player {
             state: PlayerState::Running,
             obj: Obj::new(pos.clone(), sprite, &Fg(color)),
-            default_pos,
+            default_pos: pos,
             moves: VecDeque::new(),
         }
     }
@@ -55,6 +53,7 @@ impl Player {
         self.moves.push_back(Move::Stop);
     }
 
+    /// Add jump moves to the movement queue.
     pub fn jump(&mut self, height: u16) {
         if let PlayerState::Running = self.state {
             self.state = PlayerState::Jumping;
@@ -68,6 +67,7 @@ impl Player {
         }
     }
 
+    /// Kills player (change state).
     pub fn kill(&mut self) {
         self.state = PlayerState::Killed;
     }
@@ -99,9 +99,7 @@ impl DynComp for Player {
     }
 
     fn reset(&mut self) {
-        let (col, row) = self.default_pos;
-        self.obj.pos.col = col;
-        self.obj.pos.row = row;
+        self.obj.pos = self.default_pos.clone();
         self.moves.clear();
         self.state = PlayerState::Running;
     }

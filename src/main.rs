@@ -2,7 +2,10 @@ use std::io;
 use termion::{color, raw::IntoRawMode};
 
 use crabbit::{
-    components::stage::{Layer, Stage},
+    components::{
+        player::Player,
+        stage::{Layer, Stage},
+    },
     graphics::Sprite,
     Game, Runner,
 };
@@ -35,8 +38,8 @@ fn main() {
     stage.push_layer(mountains, color::LightBlack);
     stage.push_layer(sky, color::White);
 
-    let player = Sprite::new(vec!['O'], 1);
-    let game = Game::new(player, color::Yellow, stage);
+    let player = Player::new('O', color::Yellow, stage.floor);
+    let game = Game::new(player, stage);
 
     Runner::new(
         game,

@@ -5,6 +5,7 @@ pub mod hud;
 
 pub use stage::Stage;
 pub use hud::Hud;
+pub use player::Player;
 
 /// Define behavior of Dynamic Components (components that moves).
 pub trait DynComp {

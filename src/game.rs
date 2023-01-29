@@ -1,8 +1,6 @@
-use termion::color::Color;
-
 use crate::{
-    components::{enemies::Walls, player::Player, DynComp, Hud, Stage},
-    graphics::{Pos, Render, Sprite},
+    components::{enemies::Walls, Player, DynComp, Hud, Stage},
+    graphics::{Pos, Render},
 };
 
 pub struct Game {
@@ -13,12 +11,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new<C: Color>(player_sprite: Sprite, player_fg: C, stage: Stage) -> Game {
-        let player_spawn = Pos {
-            col: 8,
-            row: stage.floor,
-        };
-        let player = Player::new(player_sprite, player_fg, player_spawn);
+    pub fn new(player: Player, stage: Stage) -> Game {
         let walls_spawn = Pos {
             col: stage.size.width,
             row: stage.floor,

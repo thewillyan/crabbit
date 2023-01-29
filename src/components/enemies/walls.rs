@@ -35,19 +35,19 @@ pub struct Walls {
     pub pos: Pos,
     pub sprite_char: char,
     pub gap: u8,
-    pub speed: u16,
+    pub shift: u16,
     queue: VecDeque<Wall>,
     objs: VecDeque<Obj>,
     wall_prob: Bernoulli,
 }
 
 impl Walls {
-    pub fn new(pos: Pos, sprite_char: char, gap: u8, speed: u16) -> Walls {
+    pub fn new(pos: Pos, sprite_char: char, gap: u8, shift: u16) -> Walls {
         Walls {
             pos,
             sprite_char,
             gap,
-            speed,
+            shift,
             queue: VecDeque::new(),
             objs: VecDeque::new(),
             // chance of having a wall: 16% per chunk
@@ -77,7 +77,7 @@ impl Walls {
 
     fn shift_objs(&mut self) {
         self.objs.iter_mut().for_each(|obj| {
-            obj.pos.col = obj.pos.col.checked_sub(self.speed).unwrap_or(0);
+            obj.pos.col = obj.pos.col.checked_sub(self.shift).unwrap_or(0);
         });
     }
 
@@ -127,7 +127,7 @@ impl DynComp for Walls {
 impl Hitmap for Walls {
     fn hits(&self, pos: &Pos) -> bool {
         for obj in &self.objs {
-            let col = obj.pos.col + (obj.pos.col % self.speed);
+            let col = obj.pos.col + (obj.pos.col % self.shift);
             let (_, obj_height) = obj.sprite.size();
             let row_range = obj.pos.row..(obj.pos.row + obj_height);
 
