@@ -75,12 +75,12 @@ impl DynComp for Score {
 }
 
 impl Render for Score {
-    fn render<O: std::io::Write>(&self, out: &mut O) {
+    fn render(&self, out: &mut crate::graphics::TermOut) {
         self.curr_obj.render(out);
         self.rec_obj.render(out);
     }
 
-    fn erase<O: std::io::Write>(&self, out: &mut O) {
+    fn erase(&self, out: &mut crate::graphics::TermOut) {
         self.curr_obj.erase(out);
         self.rec_obj.erase(out)
     }

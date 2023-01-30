@@ -4,7 +4,7 @@ use termion::{
     cursor,
 };
 
-use crate::graphics::{Pos, Render, Sprite};
+use crate::graphics::{Pos, Render, Sprite, TermOut};
 
 pub struct Obj {
     pub pos: Pos,
@@ -23,7 +23,7 @@ impl Obj {
 }
 
 impl Render for Obj {
-    fn render<O: Write>(&self, out: &mut O) {
+    fn render(&self, out: &mut TermOut) {
         let mut row = self.pos.row;
         for line in self.sprite.rows() {
             let line: String = line.iter().collect();
@@ -41,7 +41,7 @@ impl Render for Obj {
         }
     }
 
-    fn erase<O: Write>(&self, out: &mut O) {
+    fn erase(&self, out: &mut TermOut) {
         let row = self.pos.row;
         let (width, height) = self.sprite.size();
         let overwrite = " ".repeat(width as usize);

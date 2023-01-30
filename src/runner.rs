@@ -13,7 +13,7 @@ use termion::{
 };
 
 use crate::{
-    components::{enemies::Hitmap, DynComp},
+    components::{enemies::Enemy, DynComp},
     graphics::Render,
     Game,
 };
@@ -57,7 +57,7 @@ impl<C: Color> Runner<C> {
     }
 
     /// Runs the game.
-    pub fn run<O: Write>(&mut self, out: &mut O) {
+    pub fn run(&mut self, out: &mut crate::graphics::TermOut) {
         let act_stream = Self::act_input();
         self.game.hud.set_splash(self.start_msg, &self.msg_color);
 
@@ -68,7 +68,7 @@ impl<C: Color> Runner<C> {
 
             //check if player has died
             let player_pos = &self.game.player.obj.pos;
-            let has_died = self.game.walls.hits(player_pos);
+            let has_died = self.game.enemies.hits(player_pos);
             if has_died {
                 self.restart();
                 continue;
@@ -142,7 +142,7 @@ impl<C: Color> Runner<C> {
     }
 
     /// Play the game.
-    fn play<O: Write>(&mut self, out: &mut O) {
+    fn play(&mut self, out: &mut crate::graphics::TermOut) {
         if let Some(obj) = self.game.hud.take_splash() {
             obj.erase(out);
         };

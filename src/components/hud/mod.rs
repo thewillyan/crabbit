@@ -39,14 +39,14 @@ impl Hud {
 }
 
 impl Render for Hud {
-    fn render<O: std::io::Write>(&self, out: &mut O) {
+    fn render(&self, out: &mut crate::graphics::TermOut) {
         self.score.render(out);
         if let Some(obj) = &self.splash {
             obj.render(out);
         }
     }
 
-    fn erase<O: std::io::Write>(&self, out: &mut O) {
+    fn erase(&self, out: &mut crate::graphics::TermOut) {
         self.score.erase(out);
         if let Some(obj) = &self.splash {
             obj.erase(out);

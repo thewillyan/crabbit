@@ -1,9 +1,9 @@
 use rand::{distributions::Bernoulli, prelude::Distribution};
-use std::{collections::VecDeque, io::Write};
+use std::collections::VecDeque;
 use termion::color::{Fg, Red};
 
 use crate::{
-    components::{enemies::Hitmap, DynComp},
+    components::{enemies::Enemy, DynComp},
     graphics::{Obj, Pos, Render, Sprite},
 };
 
@@ -33,20 +33,18 @@ impl Wall {
 /// Obstacle walls.
 pub struct Walls {
     pub pos: Pos,
-    pub sprite_char: char,
-    pub gap: u8,
-    pub shift: u16,
+    icon: char,
+    shift: u16,
     queue: VecDeque<Wall>,
     objs: VecDeque<Obj>,
     wall_prob: Bernoulli,
 }
 
 impl Walls {
-    pub fn new(pos: Pos, sprite_char: char, gap: u8, shift: u16) -> Walls {
+    pub fn new(icon: char, pos: Pos, shift: u16) -> Walls {
         Walls {
             pos,
-            sprite_char,
-            gap,
+            icon,
             shift,
             queue: VecDeque::new(),
             objs: VecDeque::new(),
@@ -70,7 +68,7 @@ impl Walls {
             }
         }
 
-        for _ in 0..self.gap {
+        for _ in 0..4 {
             self.queue.push_back(Wall::Void);
         }
     }
@@ -91,13 +89,13 @@ impl Walls {
 }
 
 impl Render for Walls {
-    fn render<O: Write>(&self, out: &mut O) {
+    fn render(&self, out: &mut crate::graphics::TermOut) {
         for obj in &self.objs {
             obj.render(out);
         }
     }
 
-    fn erase<O: Write>(&self, out: &mut O) {
+    fn erase(&self, out: &mut crate::graphics::TermOut) {
         for obj in &self.objs {
             obj.erase(out);
         }
@@ -111,7 +109,7 @@ impl DynComp for Walls {
 
         match self.queue.pop_front() {
             Some(w) => {
-                if let Some(obj) = w.to_obj(self.sprite_char, self.pos.clone()) {
+                if let Some(obj) = w.to_obj(self.icon, self.pos.clone()) {
                     self.objs.push_back(obj);
                 }
             }
@@ -124,7 +122,7 @@ impl DynComp for Walls {
     }
 }
 
-impl Hitmap for Walls {
+impl Enemy for Walls {
     fn hits(&self, pos: &Pos) -> bool {
         for obj in &self.objs {
             let col = obj.pos.col + (obj.pos.col % self.shift);

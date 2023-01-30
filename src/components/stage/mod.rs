@@ -5,7 +5,7 @@ use termion::color::{Color, Fg};
 
 use crate::{
     components::DynComp,
-    graphics::{object::Obj, Pos, Render, Size},
+    graphics::{object::Obj, Pos, Render, Size, TermOut},
 };
 
 /// A game stage (scenario).
@@ -56,13 +56,13 @@ impl Stage {
 }
 
 impl Render for Stage {
-    fn render<O: std::io::Write>(&self, out: &mut O) {
+    fn render(&self, out: &mut TermOut) {
         for obj in &self.objs {
             obj.render(out);
         }
     }
 
-    fn erase<O: std::io::Write>(&self, out: &mut O) {
+    fn erase(&self, out: &mut TermOut) {
         for obj in &self.objs {
             obj.erase(out);
         }

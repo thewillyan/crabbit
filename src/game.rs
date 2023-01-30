@@ -1,27 +1,24 @@
 use crate::{
-    components::{enemies::Walls, Player, DynComp, Hud, Stage},
-    graphics::{Pos, Render},
+    components::{enemies::Enemies, Player, DynComp, Hud, Stage},
+    graphics::{Render, TermOut},
 };
 
+/// A jumper game.
 pub struct Game {
     pub player: Player,
     pub stage: Stage,
-    pub walls: Walls,
+    pub enemies: Enemies,
     pub hud: Hud,
 }
 
 impl Game {
-    pub fn new(player: Player, stage: Stage) -> Game {
-        let walls_spawn = Pos {
-            col: stage.size.width,
-            row: stage.floor,
-        };
-        let walls = Walls::new(walls_spawn, '|', 4, 2);
+    /// Returns a new instance of `Game`.
+    pub fn new(player: Player, stage: Stage, enemies: Enemies) -> Game {
         let hud = Hud::new(stage.size.clone());
 
         Game {
             player,
-            walls,
+            enemies,
             stage,
             hud,
         }
@@ -31,30 +28,30 @@ impl Game {
 impl DynComp for Game {
     fn update(&mut self) {
         self.stage.update();
-        self.walls.update();
+        self.enemies.update();
         self.player.update();
         self.hud.update();
     }
 
     fn reset(&mut self) {
         self.stage.reset();
-        self.walls.reset();
+        self.enemies.reset();
         self.player.reset();
         self.hud.reset();
     }
 }
 
 impl Render for Game {
-    fn render<O: std::io::Write>(&self, out: &mut O) {
+    fn render(&self, out: &mut TermOut) {
         self.stage.render(out);
-        self.walls.render(out);
+        self.enemies.render(out);
         self.player.render(out);
         self.hud.render(out);
     }
 
-    fn erase<O: std::io::Write>(&self, out: &mut O) {
+    fn erase(&self, out: &mut TermOut) {
         self.stage.erase(out);
-        self.walls.erase(out);
+        self.enemies.erase(out);
         self.player.erase(out);
     }
 }

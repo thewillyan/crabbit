@@ -1,9 +1,9 @@
-use std::{collections::VecDeque, io::Write};
+use std::collections::VecDeque;
 use termion::color::{Color, Fg};
 
 use crate::{
     components::DynComp,
-    graphics::{Obj, Pos, Render, Sprite},
+    graphics::{Obj, Pos, Render, Sprite, TermOut},
 };
 
 pub enum Move {
@@ -74,11 +74,11 @@ impl Player {
 }
 
 impl Render for Player {
-    fn render<O: Write>(&self, out: &mut O) {
+    fn render(&self, out: &mut TermOut) {
         self.obj.render(out);
     }
 
-    fn erase<O: Write>(&self, out: &mut O) {
+    fn erase(&self, out: &mut TermOut) {
         self.obj.render(out);
     }
 }

@@ -3,19 +3,22 @@ use termion::{color, raw::IntoRawMode};
 
 use crabbit::{
     components::{
+        enemies::{Enemies, Walls},
         player::Player,
         stage::{Layer, Stage},
     },
-    graphics::Sprite,
+    graphics::{Pos, Sprite},
     Game, Runner,
 };
 
 fn main() {
+    // get terminal output
     let mut stdout = io::stdout()
         .into_raw_mode()
         .expect("Failed to get a new raw stdout handler");
     let (cols, rows) = termion::terminal_size().expect("Failed to get terminal size.");
 
+    // load stage layers
     let ground = Layer::new(cols, Sprite::from_file("./sprites/ground"))
         .gap(4)
         .shift(2)
@@ -30,16 +33,26 @@ fn main() {
         .gap(40)
         .build();
 
+    // creates stage
     let mut stage = Stage::new(cols, rows);
-
     stage.push_layer(ground, color::LightWhite);
     stage.push_layer(grass, color::Green);
     stage.set_floor();
     stage.push_layer(mountains, color::LightBlack);
     stage.push_layer(sky, color::White);
 
+    // creates player
     let player = Player::new('O', color::Yellow, stage.floor);
-    let game = Game::new(player, stage);
+
+    // set enemies
+    let mut enemies = Enemies::new();
+    let walls_spawn = Pos {
+        col: cols,
+        row: stage.floor,
+    };
+    enemies.add_enemy(Walls::new('|', walls_spawn, 2));
+
+    let game = Game::new(player, stage, enemies);
 
     Runner::new(
         game,
