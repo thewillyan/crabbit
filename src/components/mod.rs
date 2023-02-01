@@ -1,6 +1,10 @@
+/// Player of the game.
 pub mod player;
+/// Game stage.
 pub mod stage;
+/// Player's enemies.
 pub mod enemies;
+/// Game HUD.
 pub mod hud;
 
 pub use stage::Stage;

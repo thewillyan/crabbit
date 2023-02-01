@@ -2,7 +2,10 @@ use termion::color;
 
 use crate::{
     components::DynComp,
-    graphics::{Obj, Pos, Render, Sprite},
+    graphics::{
+        object::{Obj, Sprite},
+        Pos, Render,
+    },
 };
 
 // current score label
@@ -11,6 +14,7 @@ const CURR_LABEL: &'static str = "Score";
 const REC_LABEL: &'static str = "Record";
 
 /// Tracks the user score.
+#[derive(Debug)]
 pub struct Score {
     pub current: u32,
     pub record: u32,
@@ -20,7 +24,7 @@ pub struct Score {
 
 impl Score {
     /// Returns a new instace of Score.
-    pub fn new(mut pos: Pos) -> Score {
+    pub fn new(mut pos: Pos) -> Self {
         let color = color::Fg(color::Reset);
         let str_score = "0".repeat(10);
 

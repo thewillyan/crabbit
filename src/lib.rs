@@ -1,7 +1,8 @@
-pub mod components;
-pub mod graphics;
-pub mod runner;
-pub mod game;
+#[warn(missing_debug_implementations, missing_docs)]
 
-pub use game::Game;
-pub use runner::Runner;
+/// Graphical utils.
+pub mod graphics;
+/// All the `Game` components (elements).
+pub mod components;
+/// Defines how all the `components` are interrelated and their behavior on runtime.
+pub mod game;

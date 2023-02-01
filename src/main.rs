@@ -7,8 +7,8 @@ use crabbit::{
         player::Player,
         stage::{Layer, Stage},
     },
-    graphics::{Pos, Sprite},
-    Game, Runner,
+    game::{runner::Runner, Game},
+    graphics::{object::Sprite, Pos},
 };
 
 fn main() {

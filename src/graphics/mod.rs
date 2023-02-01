@@ -1,12 +1,9 @@
-pub mod sprite;
-pub mod object;
-
 use std::io::Stdout;
 use termion::raw::RawTerminal;
 
-pub use sprite::Sprite;
-pub use object::Obj;
+pub mod object;
 
+/// Raw terminal output.
 pub type TermOut = RawTerminal<Stdout>;
 
 /// Defines behavior of objects that can be rendered.
@@ -18,15 +15,20 @@ pub trait Render {
 }
 
 /// Terminal position (row, col).
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Pos {
+    /// Column
     pub col: u16,
+    /// Row
     pub row: u16,
 }
 
 /// Object size (width, height).
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Size {
+    /// Horizontal size.
     pub width: u16,
+    /// Vertical size.
     pub height: u16,
 }
+

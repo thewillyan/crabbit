@@ -22,7 +22,7 @@ impl Enemies {
         Enemies { comps: Vec::new() }
     }
 
-    //// Add a enemy to  the enemies set.
+    /// Add a enemy to  the enemies set.
     pub fn add_enemy<E: Enemy + 'static>(&mut self, enemy: E) {
         self.comps.push(Box::new(enemy));
     }

@@ -1,7 +1,11 @@
 use termion::color::{Color, Fg};
 
-use crate::graphics::{Obj, Pos, Size, Sprite};
+use crate::graphics::{
+    object::{Obj, Sprite},
+    Pos, Size,
+};
 
+/// Creates a new splash screen object.
 pub fn splash_screen<C: Color>(msg: &str, color: &Fg<C>, size: &Size) -> Obj {
     let h_center = (size.width / 2) + 1;
     let v_center = size.height / 2;

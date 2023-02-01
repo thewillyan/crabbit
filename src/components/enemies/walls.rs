@@ -4,7 +4,10 @@ use termion::color::{Fg, Red};
 
 use crate::{
     components::{enemies::Enemy, DynComp},
-    graphics::{Obj, Pos, Render, Sprite},
+    graphics::{
+        object::{Obj, Sprite},
+        Pos, Render,
+    },
 };
 
 /// Kinds of wall.
@@ -32,7 +35,7 @@ impl Wall {
 
 /// Obstacle walls.
 pub struct Walls {
-    pub pos: Pos,
+    pos: Pos,
     icon: char,
     shift: u16,
     queue: VecDeque<Wall>,
@@ -41,20 +44,21 @@ pub struct Walls {
 }
 
 impl Walls {
-    pub fn new(icon: char, pos: Pos, shift: u16) -> Walls {
+    pub fn new(icon: char, pos: Pos, shift: u16) -> Self {
         Walls {
             pos,
             icon,
             shift,
-            queue: VecDeque::new(),
+            queue: VecDeque::with_capacity(8),
             objs: VecDeque::new(),
             // chance of having a wall: 16% per chunk
             wall_prob: Bernoulli::from_ratio(16, 100).expect("Failed to create Bernoulli."),
         }
     }
 
-    // generate a chunk of walls (4 walls)
+    /// Generate a chunk of walls (4 walls) plus a gap (4 spaces).
     fn gen_walls(&mut self) {
+        // walls
         for i in 0..4 {
             let has_wall = self.wall_prob.sample(&mut rand::thread_rng());
             if has_wall && (i == 0 || i == 3) {
@@ -68,17 +72,20 @@ impl Walls {
             }
         }
 
+        // gap
         for _ in 0..4 {
             self.queue.push_back(Wall::Void);
         }
     }
 
+    /// Moves each wall object.
     fn shift_objs(&mut self) {
         self.objs.iter_mut().for_each(|obj| {
             obj.pos.col = obj.pos.col.checked_sub(self.shift).unwrap_or(0);
         });
     }
 
+    /// Remove objects that are not on the screen.
     fn clean_objs(&mut self) {
         if let Some(obj) = self.objs.front() {
             if obj.pos.col == 0 {

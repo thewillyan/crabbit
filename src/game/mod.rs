@@ -1,3 +1,5 @@
+pub mod runner;
+
 use crate::{
     components::{enemies::Enemies, Player, DynComp, Hud, Stage},
     graphics::{Render, TermOut},
@@ -12,8 +14,8 @@ pub struct Game {
 }
 
 impl Game {
-    /// Returns a new instance of `Game`.
-    pub fn new(player: Player, stage: Stage, enemies: Enemies) -> Game {
+    /// Returns a new instance of [`Self`].
+    pub fn new(player: Player, stage: Stage, enemies: Enemies) -> Self {
         let hud = Hud::new(stage.size.clone());
 
         Game {

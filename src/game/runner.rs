@@ -1,3 +1,6 @@
+//! Ccontrols the `Game` flow and handle user actions.
+
+
 use std::{
     io::{self, Write},
     sync::mpsc::{self, Receiver},
@@ -14,8 +17,8 @@ use termion::{
 
 use crate::{
     components::{enemies::Enemy, DynComp},
+    game::Game,
     graphics::Render,
-    Game,
 };
 
 // intial delay (milliseconds)
@@ -35,7 +38,9 @@ pub enum Act {
     Quit,
 }
 
-/// Controls the run of a Game.
+/// Controls the run of a [`Game`].
+///
+/// [`Game`]: crate::game::Game
 pub struct Runner<C: Color> {
     game: Game,
     start_msg: &'static str,
@@ -46,7 +51,7 @@ pub struct Runner<C: Color> {
 
 impl<C: Color> Runner<C> {
     /// Returns a new Runner instance.
-    pub fn new(game: Game, start_msg: &'static str, msg_color: C) -> Runner<C> {
+    pub fn new(game: Game, start_msg: &'static str, msg_color: C) -> Self {
         Runner {
             game,
             start_msg,
@@ -66,7 +71,7 @@ impl<C: Color> Runner<C> {
             self.game.render(out);
             out.flush().unwrap();
 
-            //check if player has died
+            // check if player has died
             let player_pos = &self.game.player.obj.pos;
             let has_died = self.game.enemies.hits(player_pos);
             if has_died {

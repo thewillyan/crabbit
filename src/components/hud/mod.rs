@@ -1,13 +1,14 @@
 mod score;
 mod splash;
 
-use crate::graphics::{Obj, Pos, Render, Size};
+use crate::graphics::{object::Obj, Pos, Render, Size};
 use score::Score;
 use termion::color::{Color, Fg};
 
 use super::DynComp;
 
 /// HUD Components.
+#[derive(Debug)]
 pub struct Hud {
     pub size: Size,
     pub score: Score,

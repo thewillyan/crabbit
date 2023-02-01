@@ -3,7 +3,10 @@ use termion::color::{Color, Fg};
 
 use crate::{
     components::DynComp,
-    graphics::{Obj, Pos, Render, Sprite, TermOut},
+    graphics::{
+        object::{Obj, Sprite},
+        Pos, Render, TermOut,
+    },
 };
 
 pub enum Move {
@@ -28,9 +31,12 @@ pub struct Player {
 
 impl Player {
     /// Creates a new instance of `Player`.
-    pub fn new<C: Color>(icon: char, color: C, floor: u16) -> Player {
+    pub fn new<C: Color>(icon: char, color: C, floor: u16) -> Self {
         let sprite = Sprite::new(vec![icon], 1);
-        let pos = Pos { col: 8, row: floor - 1 };
+        let pos = Pos {
+            col: 8,
+            row: floor - 1,
+        };
         Player {
             state: PlayerState::Running,
             obj: Obj::new(pos.clone(), sprite, &Fg(color)),
