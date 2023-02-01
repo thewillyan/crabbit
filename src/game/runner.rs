@@ -1,5 +1,4 @@
-//! Ccontrols the `Game` flow and handle user actions.
-
+//! Controls the `Game` flow and handle user actions.
 
 use std::{
     io::{self, Write},
@@ -41,17 +40,17 @@ pub enum Act {
 /// Controls the run of a [`Game`].
 ///
 /// [`Game`]: crate::game::Game
-pub struct Runner<C: Color> {
+pub struct Runner<'a, C: Color> {
     game: Game,
-    start_msg: &'static str,
+    start_msg: &'a str,
     msg_color: Fg<C>,
     delay: u64,
     proceed: bool,
 }
 
-impl<C: Color> Runner<C> {
+impl<'a, C: Color> Runner<'a, C> {
     /// Returns a new Runner instance.
-    pub fn new(game: Game, start_msg: &'static str, msg_color: C) -> Self {
+    pub fn new(game: Game, start_msg: &'a str, msg_color: C) -> Self {
         Runner {
             game,
             start_msg,

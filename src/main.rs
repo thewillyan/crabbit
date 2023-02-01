@@ -7,7 +7,7 @@ use crabbit::{
         player::Player,
         stage::{Layer, Stage},
     },
-    game::{runner::Runner, Game},
+    game::Game,
     graphics::{object::Sprite, Pos},
 };
 
@@ -52,12 +52,9 @@ fn main() {
     };
     enemies.add_enemy(Walls::new('|', walls_spawn, 2));
 
-    let game = Game::new(player, stage, enemies);
-
-    Runner::new(
-        game,
+    Game::new(player, stage, enemies).run(
         "Welcome to Crabbit! Press any key to continue.",
         color::Blue,
-    )
-    .run(&mut stdout);
+        &mut stdout,
+    );
 }

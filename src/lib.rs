@@ -4,5 +4,4 @@
 pub mod graphics;
 /// All the `Game` components (elements).
 pub mod components;
-/// Defines how all the `components` are interrelated and their behavior on runtime.
 pub mod game;
