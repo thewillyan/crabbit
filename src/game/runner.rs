@@ -8,7 +8,6 @@ use std::{
 };
 use termion::{
     clear,
-    color::{Color, Fg},
     cursor,
     event::Key,
     input::TermRead,
@@ -40,21 +39,17 @@ pub enum Act {
 /// Controls the run of a [`Game`].
 ///
 /// [`Game`]: crate::game::Game
-pub struct Runner<'a, C: Color> {
+pub struct Runner {
     game: Game,
-    start_msg: &'a str,
-    msg_color: Fg<C>,
     delay: u64,
     proceed: bool,
 }
 
-impl<'a, C: Color> Runner<'a, C> {
+impl Runner {
     /// Returns a new Runner instance.
-    pub fn new(game: Game, start_msg: &'a str, msg_color: C) -> Self {
+    pub fn new(game: Game) -> Self {
         Runner {
             game,
-            start_msg,
-            msg_color: Fg(msg_color),
             delay: INI_DELAY,
             proceed: true,
         }
@@ -63,10 +58,10 @@ impl<'a, C: Color> Runner<'a, C> {
     /// Runs the game.
     pub fn run(&mut self, out: &mut crate::graphics::TermOut) {
         let act_stream = Self::act_input();
-        self.game.hud.set_splash(self.start_msg, &self.msg_color);
+        self.game.hud.splash_mut().title();
 
         write!(out, "{}{}", clear::All, cursor::Hide).unwrap();
-        while self.proceed {
+        loop {
             self.game.render(out);
             out.flush().unwrap();
 
@@ -78,12 +73,15 @@ impl<'a, C: Color> Runner<'a, C> {
                 continue;
             }
 
-            // check user input
-            let is_paused = self.game.hud.splash.is_some();
-            if is_paused {
+            // check the user input. the game pauses (freezes) each time that some splash screen is
+            // displayed.
+            if !self.game.hud.splash().is_off() {
                 let act = act_stream.recv().expect("Error on input (paused game).");
                 self.act_handler(act);
-                self.play(out);
+                // remove splash screen
+                self.game.hud.splash().erase(out);
+                self.game.hud.splash_mut().off();
+
             } else {
                 if let Ok(act) = act_stream.try_recv() {
                     self.act_handler(act);
@@ -91,13 +89,13 @@ impl<'a, C: Color> Runner<'a, C> {
             }
 
             if !self.proceed {
-                continue;
+                break;
             }
             self.game.update();
 
-            // decrement the delay (make the game go faster)
+            // decrement the delay (makes the game go faster)
             if self.delay > MIN_DELAY {
-                self.delay = INI_DELAY - (self.game.hud.score.current / DELAY_STEP) as u64;
+                self.delay = INI_DELAY - (self.game.hud.score().current() / DELAY_STEP) as u64;
             }
             thread::sleep(Duration::from_millis(self.delay));
         }
@@ -127,7 +125,11 @@ impl<'a, C: Color> Runner<'a, C> {
     fn act_handler(&mut self, act: Act) {
         match act {
             Act::PlayerJump => self.game.player.jump(JUMP_HEIGHT),
-            Act::Pause => self.pause(),
+            Act::Pause => {
+                if self.game.hud.splash().is_off() {
+                    self.game.hud.splash_mut().pause()
+                }
+            },
             Act::Restart => self.restart(),
             Act::Quit => self.quit(),
         }
@@ -138,18 +140,6 @@ impl<'a, C: Color> Runner<'a, C> {
         self.delay = INI_DELAY;
         self.game.reset();
         self.game.update();
-    }
-
-    /// Pause the game.
-    fn pause(&mut self) {
-        self.game.hud.set_splash("Game Paused", &self.msg_color);
-    }
-
-    /// Play the game.
-    fn play(&mut self, out: &mut crate::graphics::TermOut) {
-        if let Some(obj) = self.game.hud.take_splash() {
-            obj.erase(out);
-        };
     }
 
     /// Quit the game.

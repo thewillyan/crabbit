@@ -3,7 +3,7 @@
 //! [`components`]: crate::components
 
 use crate::{
-    components::{enemies::Enemies, DynComp, Hud, Player, Stage},
+    components::{enemies::Enemies, DynComp, hud::Hud, Player, Stage},
     graphics::{Render, TermOut},
 };
 
@@ -20,9 +20,7 @@ pub struct Game {
 
 impl Game {
     /// Returns a new instance of `Game`.
-    pub fn new(player: Player, stage: Stage, enemies: Enemies) -> Self {
-        let hud = Hud::new(stage.size.clone());
-
+    pub fn new(player: Player, stage: Stage, enemies: Enemies, hud: Hud) -> Self {
         Game {
             player,
             enemies,
@@ -31,10 +29,9 @@ impl Game {
         }
     }
 
-    /// Runs the game on the terminal `out`. Displays the given `start_msg` on the start with the
-    /// given color `C`.
-    pub fn run<C: termion::color::Color>(self, start_msg: &str, msg_color: C, out: &mut TermOut) {
-        Runner::new(self, start_msg, msg_color).run(out);
+    /// Runs the game on the terminal `out`.
+    pub fn run(self, out: &mut TermOut) {
+        Runner::new(self).run(out);
     }
 }
 

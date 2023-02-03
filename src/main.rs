@@ -4,6 +4,7 @@ use termion::{color, raw::IntoRawMode};
 use crabbit::{
     components::{
         enemies::{Enemies, Walls},
+        hud::{Hud, Splash},
         player::Player,
         stage::{Layer, Stage},
     },
@@ -52,9 +53,15 @@ fn main() {
     };
     enemies.add_enemy(Walls::new('|', walls_spawn, 2));
 
-    Game::new(player, stage, enemies).run(
+    // setup HUD
+    let splash_screen = Splash::new(
+        &stage.size,
         "Welcome to Crabbit! Press any key to continue.",
         color::Blue,
-        &mut stdout,
+        "Game Paused",
+        color::Magenta,
     );
+    let hud = Hud::new(splash_screen);
+
+    Game::new(player, stage, enemies, hud).run(&mut stdout);
 }

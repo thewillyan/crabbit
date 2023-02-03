@@ -4,14 +4,13 @@ pub mod player;
 pub mod stage;
 /// Player's enemies.
 pub mod enemies;
-/// Game HUD.
+/// Head-up display components.
 pub mod hud;
 
 pub use stage::Stage;
-pub use hud::Hud;
 pub use player::Player;
 
-/// Define behavior of Dynamic Components (components that moves).
+/// Define behavior of *"Dynamic Components"* (components that moves).
 pub trait DynComp {
     /// Update component (go to the next frame).
     fn update(&mut self);
