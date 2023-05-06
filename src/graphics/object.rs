@@ -64,11 +64,6 @@ impl Sprite {
         (self.size.width, self.size.height)
     }
 
-    /// Returns the number of characters that the sprite has.
-    pub fn len(&self) -> usize {
-        self.chars.len()
-    }
-
     /// Returns the element at the `i` line and `j` column.
     pub fn get(&self, i: u16, j: u16) -> Option<&char> {
         let (i, j) = (i as usize, j as usize);

@@ -81,7 +81,7 @@ impl Walls {
     /// Moves each wall object.
     fn shift_objs(&mut self) {
         self.objs.iter_mut().for_each(|obj| {
-            obj.pos.col = obj.pos.col.checked_sub(self.shift).unwrap_or(0);
+            obj.pos.col = obj.pos.col.saturating_sub(self.shift);
         });
     }
 

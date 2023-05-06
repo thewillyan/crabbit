@@ -1,14 +1,14 @@
-/// Player of the game.
-pub mod player;
-/// Game stage.
-pub mod stage;
 /// Player's enemies.
 pub mod enemies;
 /// Head-up display components.
 pub mod hud;
+/// Player of the game.
+pub mod player;
+/// Game stage.
+pub mod stage;
 
-pub use stage::Stage;
 pub use player::Player;
+pub use stage::Stage;
 
 /// Define behavior of *"Dynamic Components"* (components that moves).
 pub trait DynComp {

@@ -12,14 +12,15 @@ pub trait Enemy: Render + DynComp {
 }
 
 /// Components that can hit the player.
+#[derive(Default)]
 pub struct Enemies {
-    comps: Vec<Box<dyn Enemy>>
+    comps: Vec<Box<dyn Enemy>>,
 }
 
 impl Enemies {
     /// Returns a new instance of `Enemies`.
     pub fn new() -> Self {
-        Enemies { comps: Vec::new() }
+        Self::default()
     }
 
     /// Add a enemy to  the enemies set.
@@ -47,7 +48,6 @@ impl Render for Enemies {
         self.comps.iter().for_each(|comp| comp.erase(out));
     }
 }
-
 
 impl Enemy for Enemies {
     fn hits(&self, pos: &Pos) -> bool {

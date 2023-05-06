@@ -20,17 +20,17 @@ fn main() {
     let (cols, rows) = termion::terminal_size().expect("Failed to get terminal size.");
 
     // load stage layers
-    let ground = Layer::new(cols, Sprite::from_file("./sprites/ground"))
+    let ground = Layer::builder(cols, Sprite::from_file("./sprites/ground"))
         .gap(4)
         .shift(2)
         .build();
-    let grass = Layer::new(cols, Sprite::from_file("./sprites/grass"))
+    let grass = Layer::builder(cols, Sprite::from_file("./sprites/grass"))
         .shift(2)
         .build();
-    let mountains = Layer::new(cols, Sprite::from_file("./sprites/mountains"))
+    let mountains = Layer::builder(cols, Sprite::from_file("./sprites/mountains"))
         .gap(4)
         .build();
-    let sky = Layer::new(cols, Sprite::from_file("./sprites/sky"))
+    let sky = Layer::builder(cols, Sprite::from_file("./sprites/sky"))
         .gap(40)
         .build();
 

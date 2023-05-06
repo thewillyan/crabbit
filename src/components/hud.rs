@@ -1,5 +1,8 @@
 use std::io::Write;
-use termion::{color::{Color, Fg}, cursor::Goto};
+use termion::{
+    color::{Color, Fg},
+    cursor::Goto,
+};
 
 use super::DynComp;
 use crate::graphics::{
@@ -70,7 +73,6 @@ impl DynComp for Hud {
     }
 }
 
-
 /// Tracks the current and the best user score (which is displayed in the top-left corner) .
 #[derive(Debug)]
 pub struct Score {
@@ -119,7 +121,6 @@ impl Score {
     pub fn best_to_string(&self) -> String {
         format!("{}: {:0>10}", Self::REC_LABEL, self.record)
     }
-
 }
 
 impl Default for Score {
@@ -143,15 +144,15 @@ impl DynComp for Score {
 
 impl Render for Score {
     fn render(&self, out: &mut crate::graphics::TermOut) {
-        write!(out, "{}{}", Goto(1,1), self.best_to_string()).unwrap();
-        write!(out, "{}{}", Goto(1,2), self.curr_to_string()).unwrap();
+        write!(out, "{}{}", Goto(1, 1), self.best_to_string()).unwrap();
+        write!(out, "{}{}", Goto(1, 2), self.curr_to_string()).unwrap();
     }
 
     fn erase(&self, out: &mut crate::graphics::TermOut) {
         let curr_empty = " ".repeat(self.curr_to_string().len());
         let best_empty = " ".repeat(self.best_to_string().len());
-        write!(out, "{}{}", Goto(1,1), curr_empty).unwrap();
-        write!(out, "{}{}", Goto(1,2), best_empty).unwrap();
+        write!(out, "{}{}", Goto(1, 1), curr_empty).unwrap();
+        write!(out, "{}{}", Goto(1, 2), best_empty).unwrap();
     }
 }
 
@@ -167,7 +168,6 @@ fn splash_obj<C: Color>(msg: &str, color: C, size: &Size) -> Obj {
     Obj::new(center_pos, sprite, &Fg(color))
 }
 
-
 /// Represents the possible display options for the splash screen.
 #[derive(Debug)]
 pub enum SplashState {
@@ -181,8 +181,6 @@ impl Default for SplashState {
         Self::OffScreen
     }
 }
-
-
 
 /// Manages "title" and "pause" splash-screens with vertically and horizontally centered text.
 #[derive(Debug)]

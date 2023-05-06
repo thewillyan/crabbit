@@ -18,7 +18,7 @@ pub struct Layer {
 
 impl Layer {
     /// Returns a new layer builder.
-    pub fn new(width: u16, sprite: Sprite) -> LayerBuild {
+    pub fn builder(width: u16, sprite: Sprite) -> LayerBuild {
         LayerBuild {
             width,
             sprite,

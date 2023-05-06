@@ -31,4 +31,3 @@ pub struct Size {
     /// Vertical size.
     pub height: u16,
 }
-

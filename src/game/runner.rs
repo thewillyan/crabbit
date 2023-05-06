@@ -6,12 +6,7 @@ use std::{
     thread,
     time::Duration,
 };
-use termion::{
-    clear,
-    cursor,
-    event::Key,
-    input::TermRead,
-};
+use termion::{clear, cursor, event::Key, input::TermRead};
 
 use crate::{
     components::{enemies::Enemy, DynComp},
@@ -81,11 +76,8 @@ impl Runner {
                 // remove splash screen
                 self.game.hud.splash().erase(out);
                 self.game.hud.splash_mut().off();
-
-            } else {
-                if let Ok(act) = act_stream.try_recv() {
-                    self.act_handler(act);
-                }
+            } else if let Ok(act) = act_stream.try_recv() {
+                self.act_handler(act);
             }
 
             if !self.proceed {
@@ -104,7 +96,7 @@ impl Runner {
 
     /// Returns a mpsc receiver over the user actions.
     fn act_input() -> Receiver<Act> {
-        let (tx, rx) = mpsc::channel();
+        let (tx, rx) = mpsc::sync_channel(1);
 
         thread::spawn(move || {
             let stdin = io::stdin();
@@ -129,7 +121,7 @@ impl Runner {
                 if self.game.hud.splash().is_off() {
                     self.game.hud.splash_mut().pause()
                 }
-            },
+            }
             Act::Restart => self.restart(),
             Act::Quit => self.quit(),
         }

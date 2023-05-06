@@ -3,7 +3,7 @@
 //! [`components`]: crate::components
 
 use crate::{
-    components::{enemies::Enemies, DynComp, hud::Hud, Player, Stage},
+    components::{enemies::Enemies, hud::Hud, DynComp, Player, Stage},
     graphics::{Render, TermOut},
 };
 
